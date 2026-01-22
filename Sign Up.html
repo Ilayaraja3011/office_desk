@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=\, initial-scale=1.0">
+  <title>Office Desk Sign UP</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f5f7fa;
+      font-family: Arial;
+    }
+
+    .box {
+      width: 340px;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, .1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #0088cc;
+    }
+
+    input,
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+    }
+
+    button {
+      background: #0088cc;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="box">
+    <h2>Register</h2>
+    <input type="text" placeholder="Username" required>
+    <input type="password" placeholder="Password" required max="8">
+    <button id="registerBtn">Register</button>
+  </div>
+
+  <script>
+    document.querySelector("#registerBtn").onclick = function () {
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+
+</html>

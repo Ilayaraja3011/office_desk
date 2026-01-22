@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Office Desk Login</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+    }
+
+    .box {
+      background: #fff;
+      width: 340px;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .box input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .box button {
+      width: 100%;
+      padding: 10px;
+      background: #4facfe;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .box button:hover {
+      background: #3793e0;
+    }
+
+    .text {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .text span {
+      color: #4facfe;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .msg {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 8px;
+      color: red;
+    }
+
+    .signup {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box login">
+    <h2>Login</h2>
+
+    <input type="text" class="login-user" placeholder="Username">
+    <input type="password" class="login-pass" placeholder="Password">
+
+    <button class="login-btn">Login</button>
+
+    <div class="msg login-msg"></div>
+
+    <div class="text">
+      Create a new account?
+      <span class="goto-signup">Sign up</span>
+    </div>
+  </div>
+
+  <div class="box signup">
+    <h2>Sign Up</h2>
+
+    <input type="text" class="signup-user" placeholder="Username">
+    <input type="password" class="signup-pass" placeholder="Password">
+
+    <button class="signup-btn">Register</button>
+
+    <div class="msg signup-msg"></div>
+
+    <div class="text">
+      Already have an account?
+      <span class="goto-login">Login</span>
+    </div>
+  </div>
+
+  <script>
+    const loginBox = document.querySelector(".login");
+    const signupBox = document.querySelector(".signup");
+
+    const gotoSignup = document.querySelector(".goto-signup");
+    const gotoLogin = document.querySelector(".goto-login");
+
+    const loginBtn = document.querySelector(".login-btn");
+    const signupBtn = document.querySelector(".signup-btn");
+
+    const loginUser = document.querySelector(".login-user");
+    const loginPass = document.querySelector(".login-pass");
+    const signupUser = document.querySelector(".signup-user");
+    const signupPass = document.querySelector(".signup-pass");
+
+    const loginMsg = document.querySelector(".login-msg");
+    const signupMsg = document.querySelector(".signup-msg");
+
+    gotoSignup.addEventListener("click", function () {
+      loginBox.style.display = "none";
+      signupBox.style.display = "block";
+    });
+
+    gotoLogin.addEventListener("click", function () {
+      signupBox.style.display = "none";
+      loginBox.style.display = "block";
+    });
+
+    signupBtn.addEventListener("click", function () {
+      if (signupUser.value.trim() === "" || signupPass.value.trim() === "") {
+        signupMsg.textContent = "All fields are required";
+      } else {
+        signupMsg.style.color = "green";
+        signupMsg.textContent = "Registered successfully";
+      }
+    });
+
+    loginBtn.addEventListener("click", function () {
+      if (loginUser.value.trim() === "" || loginPass.value.trim() === "") {
+        loginMsg.textContent = "Username and password required";
+      } else {
+        window.location.href = "dashboard.html";
+      }
+    });
+  </script>
+
+</body>
+
+</html>

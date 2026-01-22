@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Office Desk Reports</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+     * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background: #f4f6f8;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #0f172a;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #38bdf8;
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar ul li {
+      margin-bottom: 6px;
+    }
+
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #fff;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar ul li a:hover {
+      background: #1e293b;
+    }
+
+    .sidebar ul li a i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px
+    }
+
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, .1)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd
+    }
+
+    th {
+      background: #f1f5f9
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="sidebar">
+    <h2>Office Desk</h2>
+    <ul>
+      <li><a href="./Dashboard.html"><img src=".//Assets/Icons/house-solid-full.svg" alt="Icons"
+            width="32px"><span>Dashboard</span></a></li>
+      <li><a href="./Employee list.html"><img src=".//Assets/Icons/users-solid-full.svg" alt="Icons"
+            width="32px"><span>Employee List</span></a></li>
+      <li><a href="./Employee Profile.html"><img src=".//Assets/Icons/user-solid-full.svg" alt="Icons"
+            width="32px"><span>Employee Profile</span></a></li>
+      <li><a href="./Leave Request.html"><img src=".//Assets/Icons/paper-plane-solid-full.svg" alt="Icons"
+            width="32px"><span>Leave Requests</span></a></li>
+      <li><a href="./Leave Approval.html"><img src=".//Assets/Icons/circle-check-solid-full.svg" alt="Icons"
+            width="32px"><span>Leave Approval</span></a></li>
+      <li><a href="./Announcements.html"><img src=".//Assets/Icons/bullhorn-solid-full.svg" alt="Icons"
+            width="32px"><span>Announcements</span></a></li>
+      <li><a href="./Attendance.html"><img src=".//Assets/Icons/clock-solid-full.svg" alt="Icons"
+            width="32px"><span>Attendance</span></a></li>
+      <li><a href="./Departments.html"><img src=".//Assets/Icons/building-solid-full.svg" alt="Icons"
+            width="32px"><span>Departments</span></a></li>
+      <li><a href="./Reports.html"><img src=".//Assets/Icons/chart-column-solid-full.svg" alt="Icons"
+            width="32px"><span>Reports</span></a></li>
+      <li><a href="./Notifications.html"><img src=".//Assets/Icons/bell-solid-full.svg" alt="Icons"
+            width="32px"><span>Notifications</span></a></li>
+      <li><a href="./Settings.html "><img src=".//Assets/Icons/gear-solid-full.svg" alt="icons"
+            width="32px"><span>Settings</span></a></li>
+      <li><a href="./Help.html"><img src=".//Assets/Icons/circle-question-solid-full.svg" alt="icons"
+            width="32px"><span>Help</span></a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <h3>Employee Report</h3>
+      <table>
+        <tr>
+          <th>Emp ID</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>EMP001</td>
+          <td>Arun Kumar</td>
+          <td>HR</td>
+          <td>Active</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</body>
+
+</html>
