@@ -8,7 +8,7 @@
   <title>Office Desk Reports</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-     * {
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -89,6 +89,25 @@
     th {
       background: #f1f5f9
     }
+
+    @media(max-width:768px) {
+      .sidebar {
+        width: 70px;
+        padding: 10px;
+      }
+
+      .sidebar h2 {
+        display: none;
+      }
+
+      .sidebar ul li a span {
+        display: none;
+      }
+
+      table {
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 
@@ -136,8 +155,20 @@
         </tr>
         <tr>
           <td>EMP001</td>
-          <td>Arun Kumar</td>
+          <td>Ilai</td>
           <td>HR</td>
+          <td>Active</td>
+        </tr>
+        <tr>
+          <td>EMP002</td>
+          <td>Finance</td>
+          <td>Name 2</td>
+          <td>Active</td>
+        </tr>
+        <tr>
+          <td>EMP003</td>
+          <td>IT</td>
+          <td>Name 3</td>
           <td>Active</td>
         </tr>
       </table>

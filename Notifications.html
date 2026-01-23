@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Office Desk Notifications</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Office Desk Notifications</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
-         * {
+  <style>
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -63,39 +63,58 @@
       text-align: center;
     }
 
-        .logout {
-            margin-top: 20px;
-            background: #dc2626
-        }
+    .logout {
+      margin-top: 20px;
+      background: #dc2626
+    }
 
-        .logout:hover {
-            background: #b91c1c
-        }
+    .logout:hover {
+      background: #b91c1c
+    }
 
-        .main {
-            flex: 1;
-            padding: 20px
-        }
+    .main {
+      flex: 1;
+      padding: 20px
+    }
 
-        .card {
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
-            margin-bottom: 15px
-        }
+    .card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+      margin-bottom: 15px
+    }
 
-        .time {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px
-        }
-    </style>
+    .time {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px
+    }
+
+    @media(max-width:768px) {
+      .sidebar {
+        width: 70px;
+        padding: 10px;
+      }
+
+      .sidebar h2 {
+        display: none;
+      }
+
+      .sidebar ul li a span {
+        display: none;
+      }
+
+      table {
+        font-size: 12px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-    <div class="sidebar">
+  <div class="sidebar">
     <h2>Office Desk</h2>
     <ul>
       <li><a href="./Dashboard.html"><img src=".//Assets/Icons/house-solid-full.svg" alt="Icons"
@@ -125,29 +144,29 @@
     </ul>
   </div>
 
-    <div class="main">
-        <h3>Notifications</h3>
+  <div class="main">
+    <h3>Notifications</h3>
 
-        <div class="card">
-            <b>Leave Approved</b>
-            <p>Leave request approved for Arun Kumar (EMP001).</p>
-            <div class="time">Today • 10:30 AM</div>
-        </div>
-
-        <div class="card">
-            <b>HR Announcement</b>
-            <p>Department meeting scheduled at 4 PM.</p>
-            <div class="time">Yesterday • 5:00 PM</div>
-        </div>
-
-        <div class="card">
-            <b>Attendance Update</b>
-            <p>Your attendance marked as Present.</p>
-            <div class="time">Today • 9:00 AM</div>
-        </div>
-
+    <div class="card">
+      <b>Leave Approved</b>
+      <p>Leave request approved for Ilai (EMP001).</p>
+      <div class="time">Today • 10:30 AM</div>
     </div>
 
+    <div class="card">
+      <b>HR Announcement</b>
+      <p>Department meeting scheduled at 4 PM.</p>
+      <div class="time">Yesterday • 5:00 PM</div>
+    </div>
+
+    <div class="card">
+      <b>Attendance Update</b>
+      <p>Your attendance marked as Present.</p>
+      <div class="time">Today • 9:00 AM</div>
+    </div>
+
+  </div>
+  
 </body>
 
 </html>
