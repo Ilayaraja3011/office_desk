@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="app-layout">
+  <div class="main-content">
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div class="mh-logo">🏢 OfficeDesk</div>
+      <div class="mh-right">
+        <button class="mh-btn" onclick="window.location.href='notifications.html'">🔔</button>
+        <button class="mh-btn" id="mobileMenuToggle">☰</button>
+      </div>
+    </header>
+
+    <!-- Desktop Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title" id="headerTitle">My Dashboard</div>
+          <div class="breadcrumb" id="headerSub">Loading...</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-btn" onclick="window.location.href='notifications.html'">🔔</div>
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+      <!-- Welcome Card -->
+      <div class="welcome-card fade-in fade-in-1">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="avatar-lg" id="userAvatar" style="background:rgba(255,255,255,0.25);color:white;">U</div>
+          <div style="flex:1;">
+            <h2 id="welcomeName">Welcome!</h2>
+            <p id="welcomeSub">Employee · OfficeDesk</p>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn" onclick="openModal('leaveModal')" style="background:rgba(255,255,255,0.2);color:white;border:1.5px solid rgba(255,255,255,0.3);font-weight:700;">
+            + Apply for Leave
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card fade-in fade-in-1">
+          <div class="stat-icon green">📅</div>
+          <div class="stat-value" id="leaveTaken">0</div>
+          <div class="stat-label">Leaves Taken</div>
+          <div class="stat-change up" id="leaveRemain">– remaining</div>
+        </div>
+        <div class="stat-card fade-in fade-in-2">
+          <div class="stat-icon amber">🕐</div>
+          <div class="stat-value" id="pendingLeaves">0</div>
+          <div class="stat-label">Pending</div>
+          <div class="stat-change" style="color:var(--text-muted);">Awaiting</div>
+        </div>
+        <div class="stat-card fade-in fade-in-3">
+          <div class="stat-icon blue">✅</div>
+          <div class="stat-value" id="approvedLeaves">0</div>
+          <div class="stat-label">Approved</div>
+          <div class="stat-change up">This year</div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-grid fade-in fade-in-2">
+        <div class="quick-card" onclick="openModal('leaveModal')">
+          <div class="qc-icon" style="background:rgba(79,126,248,0.12)">📅</div>
+          <div class="qc-label">Apply Leave</div>
+          <div class="qc-sub">Submit request</div>
+        </div>
+        <div class="quick-card" onclick="window.location.href='announcements.html'">
+          <div class="qc-icon" style="background:rgba(255,167,38,0.12)">📢</div>
+          <div class="qc-label">Announcements</div>
+          <div class="qc-sub">Company news</div>
+        </div>
+        <div class="quick-card" onclick="window.location.href='notifications.html'">
+          <div class="qc-icon" style="background:rgba(0,200,150,0.12)">🔔</div>
+          <div class="qc-label">Notifications</div>
+          <div class="qc-sub">Your alerts</div>
+        </div>
+        <div class="quick-card" onclick="window.location.href='settings.html'">
+          <div class="qc-icon" style="background:rgba(123,92,240,0.12)">⚙️</div>
+          <div class="qc-label">Settings</div>
+          <div class="qc-sub">Your profile</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- My Leave Requests -->
+        <div class="card fade-in fade-in-2">
+          <div class="card-header">
+            <span class="card-title">📋 My Leave Requests</span>
+            <button class="btn btn-sm btn-primary" onclick="openModal('leaveModal')">+ New</button>
+          </div>
+          <div id="myLeavesList">
+            <div style="text-align:center;padding:30px;color:var(--text-muted);">
+              <p style="font-size:32px;margin-bottom:8px;">📋</p>
+              <p style="font-weight:600;">No leave requests yet</p>
+              <p style="font-size:12px;margin-top:4px;">Apply for your first leave below</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Announcements -->
+        <div class="card fade-in fade-in-3">
+          <div class="card-header">
+            <span class="card-title">📢 Announcements</span>
+            <a href="announcements.html" class="btn btn-sm btn-secondary">All</a>
+          </div>
+          <div id="announcementsList">
+            <div style="text-align:center;padding:30px;color:var(--text-muted);">
+              <p style="font-size:32px;margin-bottom:8px;">📭</p>
+              <p style="font-weight:600;">No announcements yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave Balance -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header"><span class="card-title">📊 Leave Balance</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;">Casual</span><span style="font-size:12px;color:var(--text-muted);" id="casualBal">12 days</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:0%;" id="casualBar"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;">Medical</span><span style="font-size:12px;color:var(--text-muted);" id="medBal">6 days</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:0%;" id="medBar"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;">Annual</span><span style="font-size:12px;color:var(--text-muted);" id="annualBal">18 days</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:0%;" id="annualBar"></div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Apply Leave Modal -->
+<div class="overlay" id="leaveModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Apply for Leave</h2>
+      <button class="modal-close" onclick="closeModal('leaveModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Leave Type</label>
+      <select class="form-control" id="leaveType">
+        <option>Casual Leave</option>
+        <option>Medical Leave</option>
+        <option>Annual Leave</option>
+        <option>Sick Leave</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">From Date</label><input type="date" class="form-control" id="leaveFrom"></div>
+      <div class="form-group"><label class="form-label">To Date</label><input type="date" class="form-control" id="leaveTo"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reason</label>
+      <textarea class="form-control" id="leaveReason" placeholder="Briefly describe your reason..."></textarea>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('leaveModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitLeave()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+const session = requireAuth('user');
+if (!session) throw new Error('No session');
+
+renderSidebar('dashboard');
+document.getElementById('headerSub').textContent = `Welcome back, ${session.name} 👋`;
+document.getElementById('welcomeName').textContent = `Hi, ${session.name}! 👋`;
+document.getElementById('welcomeSub').textContent = `Employee · ${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}`;
+document.getElementById('userAvatar').textContent = session.initials;
+
+function loadMyLeaves() {
+  const allLeaves = getLeaves();
+  const myLeaves = allLeaves.filter(l => l.userId === session.id);
+  const taken = myLeaves.filter(l => l.status === 'approved').reduce((a,l)=>a+Number(l.days||1),0);
+  const pending = myLeaves.filter(l => l.status === 'pending').length;
+  const approved = myLeaves.filter(l => l.status === 'approved').length;
+
+  document.getElementById('leaveTaken').textContent = taken;
+  document.getElementById('pendingLeaves').textContent = pending;
+  document.getElementById('approvedLeaves').textContent = approved;
+  document.getElementById('leaveRemain').textContent = `${12 - taken} remaining`;
+
+  const pct = Math.min((taken/12)*100, 100);
+  document.getElementById('casualBar').style.width = pct + '%';
+  document.getElementById('casualBal').textContent = `${Math.max(12-taken,0)}/12 left`;
+
+  const container = document.getElementById('myLeavesList');
+  if (!myLeaves.length) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:8px;">📋</p><p style="font-weight:600;">No leave requests yet</p></div>';
+    return;
+  }
+  container.innerHTML = myLeaves.slice(0,5).map(l => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:12px;margin-bottom:8px;border:1px solid var(--border);">
+      <div style="flex:1;">
+        <p style="font-size:13px;font-weight:700;">${l.type}</p>
+        <p style="font-size:12px;color:var(--text-muted);">${l.from} → ${l.to} · ${l.days || 1} day(s)</p>
+      </div>
+      <span class="status status-${l.status}">${l.status}</span>
+    </div>
+  `).join('');
+}
+
+function loadAnnouncements() {
+  const anns = getAnnouncements().slice(0,3);
+  const container = document.getElementById('announcementsList');
+  if (!anns.length) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:8px;">📭</p><p style="font-weight:600;">No announcements</p></div>';
+    return;
+  }
+  container.innerHTML = `<div class="timeline">` + anns.map(a => `
+    <div class="timeline-item">
+      <div class="timeline-time">${a.date}</div>
+      <div class="timeline-content">
+        <p style="font-weight:700;font-size:13px;">${a.title}</p>
+        <p style="font-size:12px;color:var(--text-muted);">${a.content.slice(0,80)}...</p>
+      </div>
+    </div>
+  `).join('') + '</div>';
+}
+
+function submitLeave() {
+  const type   = document.getElementById('leaveType').value;
+  const from   = document.getElementById('leaveFrom').value;
+  const to     = document.getElementById('leaveTo').value;
+  const reason = document.getElementById('leaveReason').value.trim();
+  if (!from || !to || !reason) { showToast('Please fill all fields','error'); return; }
+  const fromD = new Date(from), toD = new Date(to);
+  if (toD < fromD) { showToast('End date cannot be before start date','error'); return; }
+  const days = Math.ceil((toD - fromD) / (1000*60*60*24)) + 1;
+  addLeave({ userId: session.id, empName: session.name, type, from, to, days, reason });
+  showToast('Leave request submitted! ✅');
+  closeModal('leaveModal');
+  loadMyLeaves();
+}
+
+loadMyLeaves();
+loadAnnouncements();
+</script>
+</body>
+</html>

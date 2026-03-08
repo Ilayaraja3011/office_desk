@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="app-layout">
+  <div class="main-content">
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div class="mh-logo">🏢 OfficeDesk</div>
+      <div class="mh-right">
+        <button class="mh-btn" onclick="window.location.href='notifications.html'">🔔<span class="badge" id="notifCountM" style="top:-2px;right:-2px;">0</span></button>
+        <button class="mh-btn" id="mobileMenuToggle">☰</button>
+      </div>
+    </header>
+
+    <!-- Desktop Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="breadcrumb" id="welcomeLine">Loading...</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-btn" onclick="window.location.href='notifications.html'" aria-label="Notifications">
+          🔔<span class="badge" id="notifCount">0</span>
+        </div>
+        <div class="header-btn" onclick="window.location.href='settings.html'" aria-label="Settings">⚙️</div>
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+      <!-- Welcome Card (mobile style) -->
+      <div class="welcome-card fade-in fade-in-1">
+        <h2 id="welcomeName">Good day! 👋</h2>
+        <p id="welcomeSub">Admin Dashboard · OfficeDesk</p>
+      </div>
+
+      <!-- Stats -->
+      <section aria-label="Key metrics" class="stats-grid">
+        <div class="stat-card fade-in fade-in-1">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-value" id="totalEmp">0</div>
+          <div class="stat-label">Total Employees</div>
+          <div class="stat-change up" id="empChange">0 active</div>
+        </div>
+        <div class="stat-card fade-in fade-in-2">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-value" id="presentToday">0</div>
+          <div class="stat-label">Present Today</div>
+          <div class="stat-change" id="attendRate">–</div>
+        </div>
+        <div class="stat-card fade-in fade-in-3">
+          <div class="stat-icon amber">📅</div>
+          <div class="stat-value" id="pendingLeaves">0</div>
+          <div class="stat-label">Pending Leaves</div>
+          <div class="stat-change down">Awaiting approval</div>
+        </div>
+        <div class="stat-card fade-in fade-in-4">
+          <div class="stat-icon red">📢</div>
+          <div class="stat-value" id="totalAnns">0</div>
+          <div class="stat-label">Announcements</div>
+          <div class="stat-change up">Total posted</div>
+        </div>
+      </section>
+
+      <!-- Quick Actions (mobile-first) -->
+      <div class="quick-grid fade-in fade-in-2">
+        <div class="quick-card" onclick="window.location.href='employee-list.html'">
+          <div class="qc-icon" style="background:rgba(79,126,248,0.12)">👥</div>
+          <div class="qc-label">Employee List</div>
+          <div class="qc-sub">Manage your team</div>
+        </div>
+        <div class="quick-card" onclick="window.location.href='leave-approval.html'">
+          <div class="qc-icon" style="background:rgba(255,167,38,0.12)">✅</div>
+          <div class="qc-label">Leave Approval</div>
+          <div class="qc-sub">Review requests</div>
+        </div>
+        <div class="quick-card" onclick="window.location.href='attendance-view.html'">
+          <div class="qc-icon" style="background:rgba(0,200,150,0.12)">⏰</div>
+          <div class="qc-label">Attendance</div>
+          <div class="qc-sub">Track records</div>
+        </div>
+        <div class="quick-card" onclick="window.location.href='reports.html'">
+          <div class="qc-icon" style="background:rgba(123,92,240,0.12)">📈</div>
+          <div class="qc-label">Reports</div>
+          <div class="qc-sub">View analytics</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Pending Leaves -->
+        <div class="card fade-in fade-in-2">
+          <div class="card-header">
+            <span class="card-title">🗓️ Pending Leave Requests</span>
+            <a href="leave-approval.html" class="btn btn-sm btn-secondary">View All</a>
+          </div>
+          <div id="pendingLeavesList">
+            <div style="text-align:center;padding:30px;color:var(--text-muted);">
+              <p style="font-size:32px;margin-bottom:8px;">🎉</p>
+              <p style="font-weight:600;">No pending requests</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Employees -->
+        <div class="card fade-in fade-in-3">
+          <div class="card-header">
+            <span class="card-title">👥 Recent Employees</span>
+            <a href="employee-list.html" class="btn btn-sm btn-secondary">View All</a>
+          </div>
+          <div id="recentEmpList">
+            <div style="text-align:center;padding:30px;color:var(--text-muted);">
+              <p style="font-size:32px;margin-bottom:8px;">👤</p>
+              <p style="font-weight:600;">No employees yet</p>
+              <p style="font-size:12px;margin-top:4px;">Add employees to get started</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcements -->
+      <!-- Pending Registrations -->
+      <div class="card fade-in" style="margin-top:16px;border:1.5px solid rgba(0,200,255,0.2);" id="pendingRegCard">
+        <div class="card-header">
+          <span class="card-title">🆕 New User Registrations</span>
+          <span id="pendingRegBadge" style="display:none;background:var(--accent);color:#000;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700;"></span>
+        </div>
+        <div id="pendingRegList"></div>
+      </div>
+
+      <div class="card fade-in fade-in-4" style="margin-top:16px;">
+        <div class="card-header">
+          <span class="card-title">📢 Latest Announcements</span>
+          <a href="announcements.html" class="btn btn-sm btn-secondary">All</a>
+        </div>
+        <div id="announcementsList">
+          <div style="text-align:center;padding:30px;color:var(--text-muted);">
+            <p style="font-size:32px;margin-bottom:8px;">📭</p>
+            <p style="font-weight:600;">No announcements yet</p>
+            <p style="font-size:12px;margin-top:4px;">Post your first announcement</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+const session = requireAuth('admin');
+if (!session) throw new Error('No session');
+renderSidebar('dashboard');
+
+document.getElementById('welcomeLine').textContent = `Welcome back, ${session.name} ⚡`;
+document.getElementById('welcomeName').textContent = `Welcome back, ${session.name}! 👋`;
+
+function loadDashboard() {
+  const emps   = getEmployees();
+  const leaves = getLeaves();
+  const anns   = getAnnouncements();
+
+  document.getElementById('totalEmp').textContent = emps.length;
+  document.getElementById('empChange').textContent = `${emps.filter(e=>e.status==='active').length} active`;
+  document.getElementById('totalAnns').textContent = anns.length;
+
+  const onLeave = emps.filter(e=>e.status==='leave').length;
+  const present = emps.length - onLeave;
+  document.getElementById('presentToday').textContent = present;
+  document.getElementById('attendRate').textContent = emps.length ? `${Math.round(present/emps.length*100)}% rate` : '–';
+
+  const pending = leaves.filter(l=>l.status==='pending');
+  document.getElementById('pendingLeaves').textContent = pending.length;
+  document.getElementById('notifCount').textContent = pending.length;
+  document.getElementById('notifCountM').textContent = pending.length;
+
+  // Pending leaves
+  const plContainer = document.getElementById('pendingLeavesList');
+  if (!pending.length) {
+    plContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:8px;">🎉</p><p style="font-weight:600;">All caught up!</p></div>';
+  } else {
+    plContainer.innerHTML = pending.slice(0,3).map(l => `
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg);border-radius:12px;margin-bottom:8px;border:1px solid var(--border);">
+        <div class="avatar" style="width:34px;height:34px;font-size:11px;">${(l.empName||'U').split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+        <div style="flex:1;">
+          <p style="font-size:13px;font-weight:700;">${l.empName || 'Unknown'}</p>
+          <p style="font-size:11px;color:var(--text-muted);">${l.type} · ${l.from} – ${l.to}</p>
+        </div>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-sm btn-success" onclick="approveLeave('${l.id}')">✓</button>
+          <button class="btn btn-sm btn-danger"  onclick="rejectLeave('${l.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Employees
+  const empContainer = document.getElementById('recentEmpList');
+  if (!emps.length) {
+    empContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:8px;">👤</p><p style="font-weight:600;">No employees yet</p><a href="employee-list.html" class="btn btn-primary btn-sm" style="margin-top:10px;">+ Add Employee</a></div>';
+  } else {
+    empContainer.innerHTML = emps.slice(0,4).map(e => `
+      <div class="employee-card" style="padding:11px 13px;margin-bottom:8px;border-radius:12px;">
+        <div class="avatar" style="width:34px;height:34px;font-size:11px;">${e.initials}</div>
+        <div class="employee-info"><h4>${e.name}</h4><p>${e.role}</p></div>
+        <span class="status status-${e.status==='active'?'active':'inactive'}">${e.status}</span>
+      </div>
+    `).join('');
+  }
+
+  // Announcements
+  const annContainer = document.getElementById('announcementsList');
+  if (!anns.length) {
+    annContainer.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);"><p style="font-size:32px;margin-bottom:8px;">📭</p><p style="font-weight:600;">No announcements yet</p><a href="announcements.html" class="btn btn-primary btn-sm" style="margin-top:10px;">+ Post Announcement</a></div>';
+  } else {
+    annContainer.innerHTML = `<div class="timeline">` + anns.slice(0,3).map(a => `
+      <div class="timeline-item">
+        <div class="timeline-time">${a.date}</div>
+        <div class="timeline-content">
+          <p style="font-weight:700;font-size:13px;">${a.title}</p>
+          <p style="font-size:12px;color:var(--text-muted);">${a.content.slice(0,80)}${a.content.length>80?'...':''}</p>
+        </div>
+      </div>
+    `).join('') + '</div>';
+  }
+}
+
+function approveLeave(id) { updateLeaveStatus(id,'approved'); showToast('Leave approved! ✅'); loadDashboard(); }
+function rejectLeave(id)  { updateLeaveStatus(id,'rejected'); showToast('Leave rejected','error'); loadDashboard(); }
+
+// ── PENDING REGISTRATIONS ──────────────────────────────
+function loadPendingRegistrations() {
+  const pending   = getPendingUsers();
+  const container = document.getElementById('pendingRegList');
+  const badge     = document.getElementById('pendingRegBadge');
+  const card      = document.getElementById('pendingRegCard');
+
+  if (!pending.length) {
+    card.style.display = 'none';
+    return;
+  }
+
+  card.style.display = '';
+  badge.style.display = '';
+  badge.textContent = pending.length + ' pending';
+
+  container.innerHTML = pending.map(u => {
+    const joined = new Date(u.createdAt).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg);border-radius:14px;margin-bottom:10px;border:1px solid var(--border);">
+      <div class="avatar" style="width:40px;height:40px;font-size:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));">${u.initials}</div>
+      <div style="flex:1;min-width:0;">
+        <p style="font-size:14px;font-weight:700;margin-bottom:2px;">${u.name}</p>
+        <p style="font-size:12px;color:var(--text-muted);">📧 ${u.email}</p>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">🕐 Registered ${joined}</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button class="btn btn-sm btn-success" onclick="handleApproveUser('${u.id}')">✓ Approve</button>
+        <button class="btn btn-sm btn-danger"  onclick="handleRejectUser('${u.id}')">✕ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handleApproveUser(id) {
+  approvePendingUser(id);
+  showToast('User approved and added as employee! ✅');
+  loadDashboard();
+  loadPendingRegistrations();
+}
+
+function handleRejectUser(id) {
+  if (!confirm('Delete this registration request?')) return;
+  rejectPendingUser(id);
+  showToast('Registration deleted.', 'error');
+  loadPendingRegistrations();
+}
+
+loadDashboard();
+loadPendingRegistrations();
+</script>
+</body>
+</html>

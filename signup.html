@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up – OfficeDesk</title>
+  <meta name="description" content="Create your OfficeDesk account as Admin or User.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Full-page overlay same as login modal */
+    body { margin:0; display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg); }
+    .signup-overlay { position:fixed; inset:0; background:rgba(26,35,64,0.65); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; padding:16px; z-index:10; }
+    .signup-box { background:var(--card); border:1px solid var(--border); border-radius:28px; padding:32px; width:100%; max-width:440px; max-height:94vh; overflow-y:auto; position:relative; box-shadow:0 24px 80px rgba(79,126,248,0.2); animation:fadeUp 0.35s ease; }
+
+    /* Role cards */
+    .role-card { border:2px solid var(--border2); border-radius:14px; padding:18px; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; }
+    .role-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.25s; }
+    .role-card.admin-card::before { background:radial-gradient(circle at top left, rgba(0,200,255,0.08), transparent); }
+    .role-card.user-card::before  { background:radial-gradient(circle at top left, rgba(255,179,64,0.08), transparent); }
+    .role-card:hover { transform:translateY(-2px); }
+    .role-card.selected { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,200,255,0.12); }
+    .role-card.selected::before { opacity:1; }
+    .role-card.user-card.selected { border-color:var(--accent2); box-shadow:0 0 0 3px rgba(255,179,64,0.12); }
+    .role-icon { font-size:30px; margin-bottom:8px; }
+    .role-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; margin-bottom:4px; }
+    .role-desc { font-size:12px; color:var(--text-muted); line-height:1.5; }
+    .check-ring { position:absolute; top:12px; right:12px; width:20px; height:20px; border:2px solid var(--border2); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+    .role-card.selected .check-ring { border-color:var(--accent); background:var(--accent); }
+    .role-card.user-card.selected .check-ring { border-color:var(--accent2); background:var(--accent2); }
+    .check-ring::after { content:'✓'; font-size:11px; color:#000; font-weight:800; opacity:0; transition:opacity 0.2s; }
+    .role-card.selected .check-ring::after { opacity:1; }
+
+    /* Steps */
+    .step { display:none; }
+    .step.active { display:block; animation:fadeIn 0.3s ease; }
+    .step-indicator { display:flex; align-items:center; gap:8px; margin-bottom:20px; }
+    .step-dot { width:8px; height:8px; border-radius:50%; background:var(--border); transition:all 0.3s; }
+    .step-dot.done { background:var(--accent); }
+    .step-line { flex:1; height:2px; background:var(--border); border-radius:1px; transition:background 0.3s; }
+    .step-line.done { background:var(--accent); }
+
+    /* Strength bar */
+    .strength-bar { display:flex; gap:4px; margin-top:8px; }
+    .strength-seg { height:3px; flex:1; border-radius:2px; background:var(--border); transition:background 0.3s; }
+  </style>
+</head>
+<body>
+
+<div class="signup-overlay">
+  <div class="signup-box">
+
+    <!-- Header -->
+    <div style="text-align:center; margin-bottom:22px;">
+      <img src="img/logo.jpeg" alt="OfficeDesk" style="width:54px;height:54px;border-radius:16px;object-fit:cover;margin:0 auto 10px;display:block;box-shadow:0 8px 24px rgba(79,126,248,0.35);">
+      <h1 style="font-size:22px;color:var(--text);font-family:'Poppins',sans-serif;margin-bottom:4px;">Create Account</h1>
+      <p style="color:var(--text-muted);font-size:13px;">Join OfficeDesk – your smart office hub</p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator" aria-label="Sign up steps">
+      <div class="step-dot done" id="dot1"></div>
+      <div class="step-line" id="line1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-line" id="line2"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
+
+    <!-- STEP 1: Choose Role -->
+    <div class="step active" id="step1">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 1 — Choose Your Role</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="role-card admin-card" id="adminCard" onclick="selectRole('admin')" role="radio" aria-checked="false" tabindex="0">
+          <div class="check-ring"></div>
+          <div class="role-icon">⚡</div>
+          <div class="role-title">Admin</div>
+          <div class="role-desc">Full access to manage employees, leaves, reports and settings</div>
+        </div>
+        <div class="role-card user-card" id="userCard" onclick="selectRole('user')" role="radio" aria-checked="false" tabindex="0">
+          <div class="check-ring"></div>
+          <div class="role-icon">👤</div>
+          <div class="role-title">User</div>
+          <div class="role-desc">Access your dashboard, submit leave requests and view announcements</div>
+        </div>
+      </div>
+      <div id="roleError" style="display:none;background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:10px;padding:10px;font-size:13px;color:var(--danger);text-align:center;margin-bottom:12px;"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="goStep2()">Continue →</button>
+    </div>
+
+    <!-- STEP 2: Account Details -->
+    <div class="step" id="step2">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 2 — Account Details</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="fname">First Name</label>
+          <input type="text" id="fname" class="form-control" placeholder="First name" autocomplete="given-name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lname">Last Name</label>
+          <input type="text" id="lname" class="form-control" placeholder="Last name" autocomplete="family-name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="regEmail">Email Address</label>
+        <input type="email" id="regEmail" class="form-control" placeholder="you@company.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="regPass">Password</label>
+        <div style="position:relative;">
+          <input type="password" id="regPass" class="form-control" placeholder="Min 6 characters" oninput="checkStrength()" style="padding-right:44px;">
+          <button type="button" onclick="togglePwd('regPass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;" aria-label="Toggle password">👁</button>
+        </div>
+        <div class="strength-bar">
+          <div class="strength-seg" id="s1"></div><div class="strength-seg" id="s2"></div>
+          <div class="strength-seg" id="s3"></div><div class="strength-seg" id="s4"></div>
+        </div>
+        <p id="strengthLabel" style="font-size:11px;margin-top:4px;color:var(--text-muted);"></p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="regPass2">Confirm Password</label>
+        <input type="password" id="regPass2" class="form-control" placeholder="Repeat password">
+      </div>
+      <div id="detailError" style="display:none;background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:10px;padding:10px;font-size:13px;color:var(--danger);text-align:center;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" style="flex:0 0 auto;" onclick="goStep1()">← Back</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:12px;" onclick="goStep3()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: PIN / Confirm -->
+    <div class="step" id="step3">
+      <!-- Admin PIN -->
+      <div id="adminPinSection" style="display:none;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 3 — Admin Verification</p>
+        <div style="background:rgba(0,200,255,0.06);border:1px solid rgba(0,200,255,0.2);border-radius:12px;padding:14px;margin-bottom:16px;">
+          <p style="font-size:13px;line-height:1.6;color:var(--text-muted);">⚡ Admin accounts require a <strong style="color:var(--accent);">verification PIN</strong> from your organization.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="adminPin">Admin PIN</label>
+          <input type="password" id="adminPin" class="form-control" placeholder="Enter PIN" maxlength="20" autocomplete="off" style="letter-spacing:6px;font-size:20px;font-weight:700;text-align:center;">
+        </div>
+        <div id="pinError" style="display:none;background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:10px;padding:10px;font-size:13px;color:var(--danger);text-align:center;margin-bottom:12px;">❌ Incorrect PIN. Please try again.</div>
+      </div>
+      <!-- User Confirm -->
+      <div id="userConfirmSection" style="display:none;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 3 — Confirm</p>
+        <div style="background:rgba(255,179,64,0.06);border:1px solid rgba(255,179,64,0.2);border-radius:12px;padding:14px;margin-bottom:16px;">
+          <div id="confirmDetails" style="font-size:14px;line-height:1.8;"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" style="flex:0 0 auto;" onclick="goStep2()">← Back</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:12px;" onclick="handleSignup()" id="signupBtn">Create Account ✓</button>
+      </div>
+    </div>
+
+    <!-- Divider + Login link -->
+    <div class="divider" style="margin:18px 0;">Already have an account?</div>
+    <a href="login.html" class="btn btn-secondary" style="width:100%;justify-content:center;padding:11px;">Sign In</a>
+    <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:14px;">
+      <a href="index.html" style="color:var(--text-muted);">← Back to Home</a>
+    </p>
+
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script>
+// Redirect if already logged in
+const sess = getSession();
+if (sess) window.location.href = sess.role === 'admin' ? 'dashboard.html' : 'user-dashboard.html';
+
+let selectedRole = '';
+
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('adminCard').classList.toggle('selected', role === 'admin');
+  document.getElementById('userCard').classList.toggle('selected', role === 'user');
+  document.getElementById('adminCard').setAttribute('aria-checked', role === 'admin');
+  document.getElementById('userCard').setAttribute('aria-checked', role === 'user');
+  document.getElementById('roleError').style.display = 'none';
+}
+
+function goStep1() { setStep(1); }
+
+function goStep2() {
+  if (!selectedRole) {
+    document.getElementById('roleError').textContent = 'Please select a role to continue.';
+    document.getElementById('roleError').style.display = 'block';
+    return;
+  }
+  setStep(2);
+}
+
+function goStep3() {
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  const errBox = document.getElementById('detailError');
+  errBox.style.display = 'none';
+  if (!fname || !lname) { errBox.textContent = 'Please enter your full name.'; errBox.style.display = 'block'; return; }
+  if (!email || !/\S+@\S+\.\S+/.test(email)) { errBox.textContent = 'Please enter a valid email.'; errBox.style.display = 'block'; return; }
+  if (pass.length < 6) { errBox.textContent = 'Password must be at least 6 characters.'; errBox.style.display = 'block'; return; }
+  if (pass !== pass2) { errBox.textContent = 'Passwords do not match.'; errBox.style.display = 'block'; return; }
+  if (selectedRole === 'admin') {
+    document.getElementById('adminPinSection').style.display = 'block';
+    document.getElementById('userConfirmSection').style.display = 'none';
+  } else {
+    document.getElementById('adminPinSection').style.display = 'none';
+    document.getElementById('userConfirmSection').style.display = 'block';
+    document.getElementById('confirmDetails').innerHTML = `
+      <p>👤 <strong>Name:</strong> ${fname} ${lname}</p>
+      <p>📧 <strong>Email:</strong> ${email}</p>
+      <p>🏷️ <strong>Role:</strong> User</p>`;
+  }
+  setStep(3);
+}
+
+function handleSignup() {
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const pin   = selectedRole === 'admin' ? document.getElementById('adminPin').value : '';
+  const btn   = document.getElementById('signupBtn');
+  if (selectedRole === 'admin' && !pin) { document.getElementById('pinError').style.display = 'block'; return; }
+  const result = register({ name: fname + ' ' + lname, email, password: pass, role: selectedRole, pin });
+  if (!result.ok) {
+    if (result.msg.includes('PIN')) { document.getElementById('pinError').style.display = 'block'; setTimeout(() => document.getElementById('pinError').style.display = 'none', 3000); }
+    else showToast(result.msg, 'error');
+    return;
+  }
+  btn.textContent = 'Account Created! Redirecting...';
+  btn.disabled = true;
+  const loginResult = login(email, pass);
+  setTimeout(() => { window.location.href = loginResult.ok && loginResult.user.role === 'admin' ? 'dashboard.html' : 'user-dashboard.html'; }, 900);
+}
+
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).classList.toggle('active', i === n);
+    document.getElementById('dot'+i).classList.toggle('done', i <= n);
+    if (i < 3) document.getElementById('line'+i).classList.toggle('done', i < n);
+  });
+}
+
+function togglePwd(id) { const inp = document.getElementById(id); inp.type = inp.type === 'password' ? 'text' : 'password'; }
+
+function checkStrength() {
+  const val = document.getElementById('regPass').value;
+  const segs = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+  let strength = 0;
+  if (val.length >= 6) strength++;
+  if (val.length >= 10) strength++;
+  if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
+  if (/[^A-Za-z0-9]/.test(val)) strength++;
+  const colors = ['#ff4466','#ffb340','#00c8ff','#00e8a2'];
+  const labels = ['','Weak','Fair','Strong','Very Strong'];
+  segs.forEach((s,i) => { s.style.background = i < strength ? colors[strength-1] : 'var(--border)'; });
+  const lbl = document.getElementById('strengthLabel');
+  lbl.textContent = labels[strength] || '';
+  lbl.style.color = colors[strength-1] || 'var(--text-muted)';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.target.classList.contains('role-card') && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.target.click(); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OfficeDesk – Office Management System</title>
+  <meta name="description" content="OfficeDesk is a web-based office management system. Manage employees, leaves, attendance and announcements in one place.">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .stats-bar{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;padding:40px 60px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+    .stat-item{text-align:center;}
+    .stat-item h3{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .stat-item p{font-size:13px;color:var(--text-muted);margin-top:4px;}
+    .footer{padding:40px 60px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+    .footer p{color:var(--text-muted);font-size:14px;}
+    @media(max-width:768px){.landing-nav{padding:16px 20px;}.landing-nav .nav-links{display:none;}.features-section{padding:60px 20px;}.features-grid{grid-template-columns:1fr;}.stats-bar{padding:30px 20px;gap:20px;}.footer{padding:30px 20px;flex-direction:column;text-align:center;}}
+
+    /* MODAL */
+    .od-overlay{display:none;position:fixed;inset:0;background:rgba(15,17,35,0.75);z-index:1000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);}
+    .od-overlay.open{display:flex;}
+    .od-box{background:var(--card);border:1px solid var(--border);border-radius:28px;padding:32px;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;position:relative;box-shadow:0 24px 80px rgba(79,126,248,0.22);animation:fadeUp 0.3s ease;}
+    .od-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--text-muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+    .od-close:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .od-logo{text-align:center;margin-bottom:22px;}
+    .od-logo img{width:56px;height:56px;border-radius:16px;object-fit:cover;margin:0 auto 10px;display:block;box-shadow:0 8px 24px rgba(79,126,248,0.35);}
+    .od-logo h2{font-size:22px;color:var(--text);font-family:'Poppins',sans-serif;margin-bottom:3px;}
+    .od-logo p{color:var(--text-muted);font-size:13px;}
+    .od-switch{width:100%;padding:12px;font-size:14px;font-weight:700;background:var(--card2);color:var(--text);border:1.5px solid var(--border);border-radius:14px;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;}
+    .od-switch:hover{border-color:var(--accent);color:var(--accent);}
+
+    /* STEPS */
+    .m-step{display:none;} .m-step.active{display:block;animation:fadeIn 0.3s ease;}
+    .m-step-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+    .m-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.3s;}
+    .m-dot.done{background:var(--accent);}
+    .m-line{flex:1;height:2px;background:var(--border);border-radius:1px;transition:background 0.3s;}
+    .m-line.done{background:var(--accent);}
+
+    /* ROLE CARDS */
+    .role-card{border:2px solid var(--border2);border-radius:14px;padding:16px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;}
+    .role-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.25s;}
+    .role-card.admin-card::before{background:radial-gradient(circle at top left,rgba(0,200,255,0.08),transparent);}
+    .role-card.user-card::before{background:radial-gradient(circle at top left,rgba(255,179,64,0.08),transparent);}
+    .role-card:hover{transform:translateY(-2px);}
+    .role-card.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,255,0.12);}
+    .role-card.selected::before{opacity:1;}
+    .role-card.user-card.selected{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(255,179,64,0.12);}
+    .role-icon{font-size:28px;margin-bottom:6px;}
+    .role-title{font-size:15px;font-weight:700;margin-bottom:3px;}
+    .role-desc{font-size:11px;color:var(--text-muted);line-height:1.5;}
+    .check-ring{position:absolute;top:10px;right:10px;width:18px;height:18px;border:2px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+    .role-card.selected .check-ring{border-color:var(--accent);background:var(--accent);}
+    .role-card.user-card.selected .check-ring{border-color:var(--accent2);background:var(--accent2);}
+    .check-ring::after{content:'✓';font-size:10px;color:#000;font-weight:800;opacity:0;transition:opacity 0.2s;}
+    .role-card.selected .check-ring::after{opacity:1;}
+    .s-bar{display:flex;gap:4px;margin-top:7px;}
+    .s-seg{height:3px;flex:1;border-radius:2px;background:var(--border);transition:background 0.3s;}
+    .err-box{display:none;background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:10px;padding:11px;font-size:13px;color:var(--danger);text-align:center;margin-bottom:12px;}
+  </style>
+</head>
+<body>
+
+<div class="landing-hero">
+  <nav class="landing-nav" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-logo" style="padding:0;border:none;">
+      <div class="logo-icon"><img src="img/logo.jpeg" alt="OfficeDesk" style="width:36px;height:36px;border-radius:10px;object-fit:cover;"></div>
+      <div class="logo-text">Office<span>Desk</span></div>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="openModal('login')">Login</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">Get Started →</button>
+    </div>
+  </nav>
+
+  <main class="hero-section" role="main">
+    <div class="hero-badge">🏢 Office Management System</div>
+    <h1 class="hero-title fade-in">Manage Your Office<br><span class="highlight">All in One Place</span></h1>
+    <p class="hero-subtitle fade-in fade-in-1">
+      OfficeDesk helps you manage employees, track attendance, handle leave requests and post announcements — simple, fast and easy to use.
+    </p>
+    <div class="hero-actions fade-in fade-in-2">
+      <button class="btn btn-primary" style="padding:14px 32px;font-size:16px;" onclick="openModal('signup')">Get Started →</button>
+      <button class="btn btn-secondary" style="padding:14px 32px;font-size:16px;" onclick="openModal('login')">Login</button>
+    </div>
+  </main>
+
+  <div class="stats-bar fade-in fade-in-3">
+    <div class="stat-item"><h3>🆓</h3><p>Free to Use</p></div>
+    <div class="stat-item"><h3>📱</h3><p>Mobile Friendly</p></div>
+    <div class="stat-item"><h3>🔐</h3><p>Role-Based Access</p></div>
+    <div class="stat-item"><h3>⚡</h3><p>No Installation</p></div>
+  </div>
+</div>
+
+<section class="features-section" id="features" aria-labelledby="fh">
+  <div class="section-header">
+    <h2 id="fh">What This App Does</h2>
+    <p>Everything you need to run your office smoothly</p>
+  </div>
+  <div class="features-grid">
+    <article class="feature-card"><div class="feature-icon">👥</div><h3>Employee Management</h3><p>Add and manage employee profiles with department, role and contact details all in one place.</p></article>
+    <article class="feature-card"><div class="feature-icon">📅</div><h3>Leave Management</h3><p>Employees apply for leave online. Admin can approve or reject requests instantly.</p></article>
+    <article class="feature-card"><div class="feature-icon">⏰</div><h3>Attendance Tracking</h3><p>Track daily attendance for all employees. View records and generate simple reports.</p></article>
+    <article class="feature-card"><div class="feature-icon">📢</div><h3>Announcements</h3><p>Post company notices and updates. All employees can see them instantly on their dashboard.</p></article>
+    <article class="feature-card"><div class="feature-icon">🏛️</div><h3>Departments</h3><p>Organize your team into departments and keep track of who belongs where.</p></article>
+    <article class="feature-card"><div class="feature-icon">📊</div><h3>Reports</h3><p>View attendance and leave summaries to help with planning and decisions.</p></article>
+  </div>
+</section>
+
+<footer class="footer" role="contentinfo">
+  <div class="sidebar-logo" style="padding:0;border:none;">
+    <div class="logo-icon"><img src="img/logo.jpeg" alt="OfficeDesk" style="width:36px;height:36px;border-radius:10px;object-fit:cover;"></div>
+    <div class="logo-text">Office<span>Desk</span></div>
+  </div>
+  <p>© 2025 OfficeDesk. All rights reserved.</p>
+  <div style="display:flex;gap:12px;">
+    <a href="help.html" style="color:var(--text-muted);font-size:14px;">Help</a>
+    <a href="settings.html" style="color:var(--text-muted);font-size:14px;">Settings</a>
+  </div>
+</footer>
+
+<!-- ═══ LOGIN MODAL ═══ -->
+<div class="od-overlay" id="loginModal" onclick="handleBg(event,'loginModal')">
+  <div class="od-box" onclick="event.stopPropagation()">
+    <button class="od-close" onclick="closeModals()">✕</button>
+    <div class="od-logo">
+      <img src="img/logo.jpeg" alt="OfficeDesk">
+      <h2>Welcome Back</h2>
+      <p>Sign in to your OfficeDesk account</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="lEmail">Email Address</label>
+      <input type="email" id="lEmail" class="form-control" placeholder="you@company.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="lPass">Password</label>
+      <div style="position:relative;">
+        <input type="password" id="lPass" class="form-control" placeholder="Enter your password" style="padding-right:44px;">
+        <button type="button" onclick="togglePwd('lPass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;">👁</button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-muted);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> Remember me</label>
+      <a href="#" style="font-size:13px;color:var(--accent);">Forgot password?</a>
+    </div>
+    <div class="err-box" id="lErr"></div>
+    <button id="lBtn" onclick="handleLogin()" style="width:100%;padding:13px;font-size:15px;font-weight:700;background:var(--accent);color:white;border:none;border-radius:14px;cursor:pointer;font-family:'Nunito',sans-serif;">Sign In →</button>
+    <div class="divider" style="margin:16px 0;">Don't have an account?</div>
+    <button class="od-switch" onclick="switchTo('signup')">Create an Account</button>
+  </div>
+</div>
+
+<!-- ═══ SIGNUP MODAL ═══ -->
+<div class="od-overlay" id="signupModal" onclick="handleBg(event,'signupModal')">
+  <div class="od-box" onclick="event.stopPropagation()">
+    <button class="od-close" onclick="closeModals()">✕</button>
+    <div class="od-logo">
+      <img src="img/logo.jpeg" alt="OfficeDesk">
+      <h2>Create Account</h2>
+      <p>Join OfficeDesk to manage your office</p>
+    </div>
+
+    <div class="m-step-bar">
+      <div class="m-dot done" id="sd1"></div><div class="m-line" id="sl1"></div>
+      <div class="m-dot" id="sd2"></div><div class="m-line" id="sl2"></div>
+      <div class="m-dot" id="sd3"></div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="m-step active" id="ss1">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 1 — Choose Your Role</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div class="role-card admin-card" id="rcAdmin" onclick="pickRole('admin')" tabindex="0">
+          <div class="check-ring"></div><div class="role-icon">⚡</div>
+          <div class="role-title">Admin</div>
+          <div class="role-desc">Manage employees, leaves, reports and settings</div>
+        </div>
+        <div class="role-card user-card" id="rcUser" onclick="pickRole('user')" tabindex="0">
+          <div class="check-ring"></div><div class="role-icon">👤</div>
+          <div class="role-title">Employee</div>
+          <div class="role-desc">View dashboard, apply leaves and read announcements</div>
+        </div>
+      </div>
+      <div class="err-box" id="sErr1"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="sNext(2)">Continue →</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="m-step" id="ss2">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 2 — Your Details</p>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name</label><input type="text" id="sFname" class="form-control" placeholder="First name"></div>
+        <div class="form-group"><label class="form-label">Last Name</label><input type="text" id="sLname" class="form-control" placeholder="Last name"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Email Address</label><input type="email" id="sEmail" class="form-control" placeholder="you@company.com"></div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div style="position:relative;">
+          <input type="password" id="sPass" class="form-control" placeholder="Min 6 characters" oninput="sStrength()" style="padding-right:44px;">
+          <button type="button" onclick="togglePwd('sPass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;">👁</button>
+        </div>
+        <div class="s-bar"><div class="s-seg" id="sb1"></div><div class="s-seg" id="sb2"></div><div class="s-seg" id="sb3"></div><div class="s-seg" id="sb4"></div></div>
+        <p id="sStrLbl" style="font-size:11px;margin-top:4px;color:var(--text-muted);"></p>
+      </div>
+      <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" id="sPass2" class="form-control" placeholder="Repeat password"></div>
+      <div class="err-box" id="sErr2"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" style="flex:0 0 auto;" onclick="sNext(1)">← Back</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;padding:12px;" onclick="sNext(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="m-step" id="ss3">
+      <div id="sPinBox" style="display:none;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 3 — Admin Verification</p>
+        <div style="background:rgba(0,200,255,0.06);border:1px solid rgba(0,200,255,0.2);border-radius:12px;padding:14px;margin-bottom:16px;">
+          <p style="font-size:13px;line-height:1.6;color:var(--text-muted);">⚡ Admin registration requires a <strong style="color:var(--accent);">verification PIN</strong> from your organization.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Admin PIN</label>
+          <input type="password" id="sPin" class="form-control" placeholder="Enter PIN" maxlength="20" style="letter-spacing:6px;font-size:20px;font-weight:700;text-align:center;">
+        </div>
+        <div class="err-box" id="sPinErr">❌ Incorrect PIN. Please try again.</div>
+      </div>
+      <div id="sConfirmBox" style="display:none;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;">Step 3 — Confirm Details</p>
+        <div style="background:rgba(255,179,64,0.06);border:1px solid rgba(255,179,64,0.2);border-radius:12px;padding:14px;margin-bottom:16px;">
+          <div id="sConfirmTxt" style="font-size:14px;line-height:1.9;"></div>
+        </div>
+      </div>
+      <div class="err-box" id="sErr3"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" style="flex:0 0 auto;" onclick="sNext(2)">← Back</button>
+        <button class="btn btn-primary" id="sSubmit" style="flex:1;justify-content:center;padding:12px;" onclick="handleSignup()">Create Account ✓</button>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:16px 0;">Already have an account?</div>
+    <button class="od-switch" onclick="switchTo('login')">Sign In Instead</button>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script>
+(function(){ const s=getSession(); if(s) window.location.href=s.role==='admin'?'dashboard.html':'user-dashboard.html'; })();
+
+function openModal(type){ closeModals(); document.getElementById(type+'Modal').classList.add('open'); if(type==='login') setTimeout(()=>document.getElementById('lEmail').focus(),100); }
+function closeModals(){ document.querySelectorAll('.od-overlay').forEach(m=>m.classList.remove('open')); }
+function handleBg(e,id){ if(e.target===document.getElementById(id)) closeModals(); }
+function switchTo(type){ closeModals(); if(type==='signup') sReset(); openModal(type); }
+function togglePwd(id){ const el=document.getElementById(id); el.type=el.type==='password'?'text':'password'; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModals(); if(e.key==='Enter'&&document.getElementById('loginModal').classList.contains('open')) handleLogin(); });
+
+// LOGIN
+async function handleLogin(){
+  const email=document.getElementById('lEmail').value.trim(), pass=document.getElementById('lPass').value;
+  const err=document.getElementById('lErr'), btn=document.getElementById('lBtn');
+  err.style.display='none';
+  if(!email||!pass){ err.textContent='Please fill in all fields.'; err.style.display='block'; return; }
+  btn.textContent='Signing in...'; btn.disabled=true;
+  const r=await login(email,pass);
+  if(!r.ok){ err.textContent=r.msg; err.style.display='block'; btn.textContent='Sign In →'; btn.disabled=false; return; }
+  setTimeout(()=>{ window.location.href=r.user.role==='admin'?'dashboard.html':'user-dashboard.html'; },700);
+}
+
+// SIGNUP
+let sRole='';
+function pickRole(role){ sRole=role; document.getElementById('rcAdmin').classList.toggle('selected',role==='admin'); document.getElementById('rcUser').classList.toggle('selected',role==='user'); document.getElementById('sErr1').style.display='none'; }
+function sNext(step){
+  if(step===2&&!sRole){ const e=document.getElementById('sErr1'); e.textContent='Please select a role.'; e.style.display='block'; return; }
+  if(step===3){
+    const fn=document.getElementById('sFname').value.trim(), ln=document.getElementById('sLname').value.trim();
+    const em=document.getElementById('sEmail').value.trim(), p=document.getElementById('sPass').value, p2=document.getElementById('sPass2').value;
+    const e=document.getElementById('sErr2'); e.style.display='none';
+    if(!fn||!ln){ e.textContent='Please enter your full name.'; e.style.display='block'; return; }
+    if(!em||!/\S+@\S+\.\S+/.test(em)){ e.textContent='Please enter a valid email.'; e.style.display='block'; return; }
+    if(p.length<6){ e.textContent='Password must be at least 6 characters.'; e.style.display='block'; return; }
+    if(p!==p2){ e.textContent='Passwords do not match.'; e.style.display='block'; return; }
+    if(sRole==='admin'){ document.getElementById('sPinBox').style.display='block'; document.getElementById('sConfirmBox').style.display='none'; }
+    else{ document.getElementById('sPinBox').style.display='none'; document.getElementById('sConfirmBox').style.display='block'; document.getElementById('sConfirmTxt').innerHTML=`<p>👤 <strong>Name:</strong> ${fn} ${ln}</p><p>📧 <strong>Email:</strong> ${em}</p><p>🏷️ <strong>Role:</strong> Employee</p>`; }
+  }
+  sSetStep(step);
+}
+function sSetStep(n){ [1,2,3].forEach(i=>{ document.getElementById('ss'+i).classList.toggle('active',i===n); document.getElementById('sd'+i).classList.toggle('done',i<=n); if(i<3) document.getElementById('sl'+i).classList.toggle('done',i<n); }); }
+function sReset(){ sRole=''; ['rcAdmin','rcUser'].forEach(id=>document.getElementById(id).classList.remove('selected')); ['sFname','sLname','sEmail','sPass','sPass2'].forEach(id=>document.getElementById(id).value=''); ['sErr1','sErr2','sErr3','sPinErr'].forEach(id=>document.getElementById(id).style.display='none'); if(document.getElementById('sPin')) document.getElementById('sPin').value=''; sSetStep(1); }
+async function handleSignup(){
+  const fn=document.getElementById('sFname').value.trim(), ln=document.getElementById('sLname').value.trim();
+  const em=document.getElementById('sEmail').value.trim(), p=document.getElementById('sPass').value;
+  const pin=sRole==='admin'?document.getElementById('sPin').value:'';
+  const btn=document.getElementById('sSubmit');
+  if(sRole==='admin'&&!pin){ document.getElementById('sPinErr').style.display='block'; return; }
+  btn.textContent='Creating...'; btn.disabled=true;
+  const r=await register({name:fn+' '+ln,email:em,password:p,role:sRole,pin});
+  if(!r.ok){
+    if(r.msg.includes('PIN')){ document.getElementById('sPinErr').style.display='block'; setTimeout(()=>document.getElementById('sPinErr').style.display='none',3000); }
+    else showToast(r.msg,'error');
+    btn.textContent='Create Account ✓'; btn.disabled=false; return;
+  }
+  const lr=await login(em,p);
+  setTimeout(()=>{ window.location.href=lr.ok&&lr.user.role==='admin'?'dashboard.html':'user-dashboard.html'; },900);
+}
+function sStrength(){
+  const v=document.getElementById('sPass').value; let s=0;
+  if(v.length>=6)s++; if(v.length>=10)s++; if(/[A-Z]/.test(v)&&/[0-9]/.test(v))s++; if(/[^A-Za-z0-9]/.test(v))s++;
+  const c=['#ff4466','#ffb340','#00c8ff','#00e8a2'],l=['','Weak','Fair','Strong','Very Strong'];
+  ['sb1','sb2','sb3','sb4'].forEach((id,i)=>{ document.getElementById(id).style.background=i<s?c[s-1]:'var(--border)'; });
+  const lbl=document.getElementById('sStrLbl'); lbl.textContent=l[s]||''; lbl.style.color=c[s-1]||'var(--text-muted)';
+}
+</script>
+</body>
+</html>

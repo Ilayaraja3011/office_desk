@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Departments – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title">Departments</div>
+          <div class="breadcrumb">Dashboard → Departments</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-primary" onclick="openModal('deptModal')">+ Add Department</button>
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+      <div id="deptGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;"></div>
+    </main>
+  </div>
+</div>
+
+<!-- Add Department Modal -->
+<div class="overlay" id="deptModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Add Department</h2>
+      <button class="modal-close" onclick="closeModal('deptModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Department Name</label>
+      <input type="text" id="deptName" class="form-control" placeholder="e.g. Engineering">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input type="text" id="deptDesc" class="form-control" placeholder="Short description">
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-secondary" onclick="closeModal('deptModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addDept()">Add Department</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('admin');
+renderSidebar('departments');
+
+const DEPT_KEY = 'od_departments';
+const deptIcons = ['🏛️','💻','📊','🎯','🛠️','📦','🎨','📋','🔬','📱'];
+
+function getDepts() { return JSON.parse(localStorage.getItem(DEPT_KEY) || '[]'); }
+function saveDepts(d) { localStorage.setItem(DEPT_KEY, JSON.stringify(d)); }
+
+function renderDepts() {
+  const depts     = getDepts();
+  const employees = getEmployees();
+  const container = document.getElementById('deptGrid');
+
+  if (depts.length === 0) {
+    container.innerHTML = `<div class="card" style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+      <div style="font-size:48px;margin-bottom:16px;">🏛️</div>
+      <p style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">No departments yet</p>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;">Add your first department to get started.</p>
+      <button class="btn btn-primary" onclick="openModal('deptModal')">+ Add Department</button>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = depts.map((dept, i) => {
+    const count = employees.filter(e => e.department === dept.name).length;
+    const icon  = deptIcons[i % deptIcons.length];
+    return `<div class="card" style="padding:24px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:22px;">${icon}</div>
+        <button onclick="deleteDept('${dept.id}')" style="background:rgba(255,71,87,0.1);border:none;color:var(--danger);cursor:pointer;border-radius:8px;padding:6px 10px;font-size:13px;" title="Delete">🗑</button>
+      </div>
+      <h3 style="font-size:17px;font-weight:700;margin-bottom:4px;">${dept.name}</h3>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">${dept.desc || 'No description'}</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);">
+        <span style="font-size:13px;color:var(--text-muted);">👥 ${count} employee${count !== 1 ? 's' : ''}</span>
+        <span style="font-size:11px;color:var(--text-muted);">${dept.createdAt || ''}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addDept() {
+  const name = document.getElementById('deptName').value.trim();
+  const desc = document.getElementById('deptDesc').value.trim();
+  if (!name) { showToast('Please enter a department name.', 'error'); return; }
+  const depts = getDepts();
+  if (depts.find(d => d.name.toLowerCase() === name.toLowerCase())) {
+    showToast('Department already exists.', 'error'); return;
+  }
+  depts.push({ id: 'D' + Date.now(), name, desc, createdAt: new Date().toISOString().split('T')[0] });
+  saveDepts(depts);
+  document.getElementById('deptName').value = '';
+  document.getElementById('deptDesc').value = '';
+  closeModal('deptModal');
+  showToast('Department added!');
+  renderDepts();
+}
+
+function deleteDept(id) {
+  if (!confirm('Delete this department?')) return;
+  saveDepts(getDepts().filter(d => d.id !== id));
+  showToast('Department deleted.', 'info');
+  renderDepts();
+}
+
+renderDepts();
+</script>
+</body>
+</html>

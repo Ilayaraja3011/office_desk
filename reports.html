@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .rep-stat{display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border-radius:12px;margin-bottom:10px;border:1px solid var(--border);}
+    .rep-stat-left{display:flex;align-items:center;gap:10px;}
+    .rep-stat-left p{font-weight:600;font-size:14px;margin-bottom:2px;}
+    .rep-stat-left span{font-size:11px;color:var(--text-muted);}
+    .rep-stat-val{font-size:22px;font-weight:800;}
+    .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .bar-label{font-size:13px;color:var(--text-muted);width:90px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .bar-track{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden;}
+    .bar-fill{height:100%;border-radius:5px;transition:width 0.6s ease;}
+    .bar-num{font-size:12px;font-weight:700;width:24px;text-align:right;flex-shrink:0;color:var(--text-muted);}
+    .emp-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .emp-row:last-child{border-bottom:none;}
+  </style>
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title">Reports</div>
+          <div class="breadcrumb">Dashboard → Reports</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+
+      <!-- Top Stats -->
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+        <div class="stat-card"><div class="stat-icon blue">👥</div><div class="stat-value" id="rTotalEmp">0</div><div class="stat-label">Employees</div></div>
+        <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-value" id="rApproved">0</div><div class="stat-label">Leaves Approved</div></div>
+        <div class="stat-card"><div class="stat-icon red">❌</div><div class="stat-value" id="rRejected">0</div><div class="stat-label">Leaves Rejected</div></div>
+        <div class="stat-card"><div class="stat-icon yellow">🕐</div><div class="stat-value" id="rPending">0</div><div class="stat-label">Leaves Pending</div></div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- Leave Summary -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">📅 Leave Summary</span></div>
+          <div id="leaveSummary"></div>
+        </div>
+
+        <!-- Department Headcount -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">🏛️ Department Headcount</span></div>
+          <div id="deptReport"></div>
+        </div>
+
+        <!-- Leave by Type -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">📊 Leave Breakdown by Type</span></div>
+          <div id="leaveTypeReport"></div>
+        </div>
+
+        <!-- Employee List Snapshot -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">👥 Employee Snapshot</span>
+            <a href="employee-list.html" class="btn btn-sm btn-secondary">View All</a>
+          </div>
+          <div id="empSnapshot"></div>
+        </div>
+
+      </div>
+
+      <!-- Recent Leave Requests Table -->
+      <div class="card" style="margin-top:20px;">
+        <div class="card-header">
+          <span class="card-title">📋 All Leave Requests</span>
+          <a href="leave-approval.html" class="btn btn-sm btn-secondary">Manage</a>
+        </div>
+        <div id="leaveTable"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('admin');
+renderSidebar('reports');
+
+function pct(val, total) { return total === 0 ? 0 : Math.round((val / total) * 100); }
+function emptyState(icon, msg) {
+  return `<div style="text-align:center;padding:30px;"><div style="font-size:36px;margin-bottom:10px;">${icon}</div><p style="color:var(--text-muted);font-size:13px;">${msg}</p></div>`;
+}
+
+function renderReports() {
+  const employees = getEmployees();
+  const leaves    = getLeaves();
+  const approved  = leaves.filter(l => l.status === 'approved');
+  const rejected  = leaves.filter(l => l.status === 'rejected');
+  const pending   = leaves.filter(l => l.status === 'pending');
+  const total     = leaves.length;
+
+  // Top stats
+  document.getElementById('rTotalEmp').textContent = employees.length;
+  document.getElementById('rApproved').textContent = approved.length;
+  document.getElementById('rRejected').textContent = rejected.length;
+  document.getElementById('rPending').textContent  = pending.length;
+
+  // ── Leave Summary ──
+  const lsEl = document.getElementById('leaveSummary');
+  if (total === 0) {
+    lsEl.innerHTML = emptyState('📅', 'No leave requests yet');
+  } else {
+    lsEl.innerHTML = [
+      { icon:'📋', label:'Total Requests', sub:'All time',     val: total,            color:'var(--text)' },
+      { icon:'✅', label:'Approved',       sub: pct(approved.length, total) + '% rate', val: approved.length, color:'var(--success)' },
+      { icon:'❌', label:'Rejected',       sub: pct(rejected.length, total) + '% rate', val: rejected.length, color:'var(--danger)' },
+      { icon:'🕐', label:'Pending',        sub: 'Awaiting action', val: pending.length, color:'var(--warning)' },
+    ].map(r => `
+      <div class="rep-stat">
+        <div class="rep-stat-left">
+          <span style="font-size:22px;">${r.icon}</span>
+          <div><p>${r.label}</p><span>${r.sub}</span></div>
+        </div>
+        <div class="rep-stat-val" style="color:${r.color};">${r.val}</div>
+      </div>`).join('');
+  }
+
+  // ── Department Headcount ──
+  const deptEl = document.getElementById('deptReport');
+  if (employees.length === 0) {
+    deptEl.innerHTML = emptyState('🏛️', 'No employees added yet');
+  } else {
+    const deptMap = {};
+    employees.forEach(e => { const d = e.department || 'Unassigned'; deptMap[d] = (deptMap[d] || 0) + 1; });
+    const maxD = Math.max(...Object.values(deptMap));
+    const colors = ['var(--accent)','var(--accent2)','var(--success)','#a78bfa','#f97316','#22d3ee'];
+    deptEl.innerHTML = Object.entries(deptMap).sort((a,b) => b[1]-a[1]).map(([dept, count], i) => `
+      <div class="bar-row">
+        <span class="bar-label" title="${dept}">${dept}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct(count,maxD)}%;background:${colors[i%colors.length]};"></div></div>
+        <div class="bar-num">${count}</div>
+      </div>`).join('');
+  }
+
+  // ── Leave by Type ──
+  const typeEl = document.getElementById('leaveTypeReport');
+  if (leaves.length === 0) {
+    typeEl.innerHTML = emptyState('📊', 'No leave data yet');
+  } else {
+    const typeMap = {};
+    leaves.forEach(l => { typeMap[l.type] = (typeMap[l.type] || 0) + 1; });
+    const maxT = Math.max(...Object.values(typeMap));
+    typeEl.innerHTML = Object.entries(typeMap).sort((a,b) => b[1]-a[1]).map(([type, count]) => `
+      <div class="bar-row">
+        <span class="bar-label" title="${type}">${type}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct(count,maxT)}%;background:var(--accent2);"></div></div>
+        <div class="bar-num">${count}</div>
+      </div>`).join('');
+  }
+
+  // ── Employee Snapshot ──
+  const empEl = document.getElementById('empSnapshot');
+  if (employees.length === 0) {
+    empEl.innerHTML = emptyState('👥', 'No employees yet');
+  } else {
+    empEl.innerHTML = employees.slice(0, 6).map(e => `
+      <div class="emp-row">
+        <div class="avatar" style="width:34px;height:34px;font-size:11px;flex-shrink:0;">${e.initials}</div>
+        <div style="flex:1;min-width:0;">
+          <p style="font-size:13px;font-weight:700;">${e.name}</p>
+          <p style="font-size:11px;color:var(--text-muted);">${e.department || 'No dept'} · ${e.role || 'Employee'}</p>
+        </div>
+        <span class="status status-${e.status === 'active' ? 'active' : 'inactive'}">${e.status || 'active'}</span>
+      </div>`).join('');
+  }
+
+  // ── All Leave Requests Table ──
+  const leaveEl = document.getElementById('leaveTable');
+  if (leaves.length === 0) {
+    leaveEl.innerHTML = emptyState('📋', 'No leave requests yet');
+  } else {
+    leaveEl.innerHTML = `<div class="table-wrapper"><table>
+      <thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th></tr></thead>
+      <tbody>` + leaves.map(l => {
+        const days = l.from && l.to
+          ? Math.max(1, Math.ceil((new Date(l.to) - new Date(l.from)) / (1000*60*60*24)) + 1)
+          : '–';
+        const sc = l.status === 'approved' ? 'active' : l.status === 'rejected' ? 'rejected' : 'inactive';
+        return `<tr>
+          <td>${l.empName || '–'}</td>
+          <td>${l.type || '–'}</td>
+          <td>${l.from || '–'}</td>
+          <td>${l.to || '–'}</td>
+          <td>${days}</td>
+          <td><span class="status status-${sc}">${l.status}</span></td>
+        </tr>`;
+      }).join('') +
+      `</tbody></table></div>`;
+  }
+}
+
+renderReports();
+</script>
+</body>
+</html>

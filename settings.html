@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+    .stab{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);color:var(--text-muted);background:var(--card);transition:all 0.2s;}
+    .stab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+    .tab-panel{display:none;} .tab-panel.active{display:block;}
+    .toggle-wrap{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0;}
+    .toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+    .toggle-track{position:absolute;inset:0;border-radius:12px;background:var(--border);transition:0.3s;}
+    .toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:0.3s;}
+    .toggle-wrap input:checked + .toggle-track{background:var(--accent);}
+    .toggle-wrap input:checked + .toggle-track::after{transform:translateX(20px);}
+    .setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);}
+    .setting-row:last-child{border-bottom:none;}
+    .danger-zone{border:1.5px solid rgba(255,68,102,0.3);border-radius:14px;padding:20px;background:rgba(255,68,102,0.04);}
+  </style>
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title">Settings</div>
+          <div class="breadcrumb">Dashboard → Settings</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-primary" onclick="saveAll()">Save Changes</button>
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="stab active" onclick="switchTab('company')">🏢 Company</div>
+        <div class="stab" onclick="switchTab('schedule')">📅 Schedule</div>
+        <div class="stab" onclick="switchTab('profile')">👤 My Profile</div>
+        <div class="stab" onclick="switchTab('notifications')">🔔 Notifications</div>
+        <div class="stab" onclick="switchTab('security')">🔐 Security</div>
+      </div>
+
+      <!-- Company Tab -->
+      <div class="tab-panel active" id="tab-company">
+        <div class="card">
+          <div class="card-header"><span class="card-title">🏢 Company Information</span></div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Company Name</label><input type="text" id="companyName" class="form-control" placeholder="e.g. Acme Pvt Ltd"></div>
+            <div class="form-group"><label class="form-label">Industry</label>
+              <select id="industry" class="form-control">
+                <option value="">Select Industry</option>
+                <option>Information Technology</option><option>Finance</option><option>Healthcare</option>
+                <option>Education</option><option>Manufacturing</option><option>Retail</option>
+                <option>Logistics</option><option>Media</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Company Email</label><input type="email" id="companyEmail" class="form-control" placeholder="company@example.com"></div>
+            <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="companyPhone" class="form-control" placeholder="+91 00000 00000"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Address</label><textarea id="companyAddress" class="form-control" style="min-height:80px;" placeholder="Full company address"></textarea></div>
+          <div class="form-group"><label class="form-label">Website</label><input type="url" id="companyWebsite" class="form-control" placeholder="https://yourcompany.com"></div>
+        </div>
+      </div>
+
+      <!-- Schedule Tab -->
+      <div class="tab-panel" id="tab-schedule">
+        <div class="card">
+          <div class="card-header"><span class="card-title">📅 Work Schedule</span></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Work Start Time</label><input type="time" id="workStart" class="form-control" value="09:00"></div>
+            <div class="form-group"><label class="form-label">Work End Time</label><input type="time" id="workEnd" class="form-control" value="18:00"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Working Days</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wMon" checked style="accent-color:var(--accent);"> Mon</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wTue" checked style="accent-color:var(--accent);"> Tue</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wWed" checked style="accent-color:var(--accent);"> Wed</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wThu" checked style="accent-color:var(--accent);"> Thu</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wFri" checked style="accent-color:var(--accent);"> Fri</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wSat" style="accent-color:var(--accent);"> Sat</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;"><input type="checkbox" id="wSun" style="accent-color:var(--accent);"> Sun</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Annual Leave Days</label><input type="number" id="annualLeave" class="form-control" value="18" min="0" max="60"></div>
+            <div class="form-group"><label class="form-label">Sick Leave Days</label><input type="number" id="sickLeave" class="form-control" value="10" min="0" max="60"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Tab -->
+      <div class="tab-panel" id="tab-profile">
+        <div class="card">
+          <div class="card-header"><span class="card-title">👤 My Profile</span></div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px;background:var(--bg);border-radius:14px;">
+            <div class="avatar-lg" id="adminAvatar" style="font-size:22px;">–</div>
+            <div>
+              <p style="font-size:16px;font-weight:700;" id="adminNameDisplay">–</p>
+              <p style="font-size:13px;color:var(--text-muted);" id="adminEmailDisplay">–</p>
+              <span class="status status-active" style="margin-top:6px;display:inline-block;">Admin</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name</label><input type="text" id="adminFname" class="form-control" placeholder="First name"></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input type="text" id="adminLname" class="form-control" placeholder="Last name"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email Address</label><input type="email" id="adminEmail" class="form-control" placeholder="admin@company.com"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input type="tel" id="adminPhone" class="form-control" placeholder="+91 00000 00000"></div>
+        </div>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div class="tab-panel" id="tab-notifications">
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔔 Notification Preferences</span></div>
+          <div class="setting-row">
+            <div><p style="font-size:14px;font-weight:600;">Leave Requests</p><p style="font-size:12px;color:var(--text-muted);">Notify when employees apply for leave</p></div>
+            <label class="toggle-wrap"><input type="checkbox" id="notifLeave" checked><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><p style="font-size:14px;font-weight:600;">New Registrations</p><p style="font-size:12px;color:var(--text-muted);">Alert when a new user registers</p></div>
+            <label class="toggle-wrap"><input type="checkbox" id="notifReg" checked><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><p style="font-size:14px;font-weight:600;">Attendance Alerts</p><p style="font-size:12px;color:var(--text-muted);">Alert on consecutive absences</p></div>
+            <label class="toggle-wrap"><input type="checkbox" id="notifAtt" checked><span class="toggle-track"></span></label>
+          </div>
+          <div class="setting-row">
+            <div><p style="font-size:14px;font-weight:600;">Announcement Posted</p><p style="font-size:12px;color:var(--text-muted);">Confirm when an announcement is published</p></div>
+            <label class="toggle-wrap"><input type="checkbox" id="notifAnn"><span class="toggle-track"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Tab -->
+      <div class="tab-panel" id="tab-security">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><span class="card-title">🔐 Change Password</span></div>
+          <div class="form-group"><label class="form-label">Current Password</label><input type="password" id="curPwd" class="form-control" placeholder="Enter current password"></div>
+          <div class="form-group"><label class="form-label">New Password</label><input type="password" id="newPwd" class="form-control" placeholder="Min 6 characters"></div>
+          <div class="form-group"><label class="form-label">Confirm New Password</label><input type="password" id="confirmPwd" class="form-control" placeholder="Repeat new password"></div>
+          <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+        </div>
+        <div class="danger-zone">
+          <p style="font-size:15px;font-weight:700;color:var(--danger);margin-bottom:4px;">⚠️ Danger Zone</p>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">These actions are irreversible. Be careful.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-danger" onclick="clearAllData()">🗑 Clear All Data</button>
+            <button class="btn btn-danger" onclick="doLogout()">🚪 Logout</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('any');
+renderSidebar('settings');
+
+const SK = 'od_settings';
+
+function switchTab(name) {
+  document.querySelectorAll('.stab').forEach((t, i) => t.classList.toggle('active', ['company','schedule','profile','notifications','security'][i] === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function loadSettings() {
+  const session = getSession();
+  if (session) {
+    const parts = session.name.trim().split(' ');
+    document.getElementById('adminFname').value        = parts[0] || '';
+    document.getElementById('adminLname').value        = parts.slice(1).join(' ') || '';
+    document.getElementById('adminEmail').value        = session.email || '';
+    document.getElementById('adminAvatar').textContent = session.initials || '–';
+    document.getElementById('adminNameDisplay').textContent  = session.name;
+    document.getElementById('adminEmailDisplay').textContent = session.email;
+  }
+
+  const s = JSON.parse(localStorage.getItem(SK) || '{}');
+  if (s.companyName)    document.getElementById('companyName').value    = s.companyName;
+  if (s.industry)       document.getElementById('industry').value       = s.industry;
+  if (s.companyEmail)   document.getElementById('companyEmail').value   = s.companyEmail;
+  if (s.companyPhone)   document.getElementById('companyPhone').value   = s.companyPhone;
+  if (s.companyAddress) document.getElementById('companyAddress').value = s.companyAddress;
+  if (s.companyWebsite) document.getElementById('companyWebsite').value = s.companyWebsite;
+  if (s.workStart)      document.getElementById('workStart').value      = s.workStart;
+  if (s.workEnd)        document.getElementById('workEnd').value        = s.workEnd;
+  if (s.annualLeave)    document.getElementById('annualLeave').value    = s.annualLeave;
+  if (s.sickLeave)      document.getElementById('sickLeave').value      = s.sickLeave;
+  if (s.adminPhone)     document.getElementById('adminPhone').value     = s.adminPhone;
+  if (s.workDays) {
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => {
+      const el = document.getElementById('w'+d);
+      if (el) el.checked = s.workDays.includes(d);
+    });
+  }
+  ['notifLeave','notifReg','notifAtt','notifAnn'].forEach(id => {
+    if (s[id] !== undefined) document.getElementById(id).checked = s[id];
+  });
+}
+
+function saveAll() {
+  const workDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].filter(d => document.getElementById('w'+d).checked);
+  const s = {
+    companyName:    document.getElementById('companyName').value.trim(),
+    industry:       document.getElementById('industry').value,
+    companyEmail:   document.getElementById('companyEmail').value.trim(),
+    companyPhone:   document.getElementById('companyPhone').value.trim(),
+    companyAddress: document.getElementById('companyAddress').value.trim(),
+    companyWebsite: document.getElementById('companyWebsite').value.trim(),
+    workStart:      document.getElementById('workStart').value,
+    workEnd:        document.getElementById('workEnd').value,
+    annualLeave:    document.getElementById('annualLeave').value,
+    sickLeave:      document.getElementById('sickLeave').value,
+    adminPhone:     document.getElementById('adminPhone').value.trim(),
+    workDays,
+    notifLeave: document.getElementById('notifLeave').checked,
+    notifReg:   document.getElementById('notifReg').checked,
+    notifAtt:   document.getElementById('notifAtt').checked,
+    notifAnn:   document.getElementById('notifAnn').checked,
+  };
+  localStorage.setItem(SK, JSON.stringify(s));
+
+  // Update session name
+  const session = getSession();
+  const fname   = document.getElementById('adminFname').value.trim();
+  const lname   = document.getElementById('adminLname').value.trim();
+  if (session && fname) {
+    const newName  = fname + (lname ? ' ' + lname : '');
+    const initials = (fname[0] + (lname ? lname[0] : '')).toUpperCase();
+    setSession({ ...session, name: newName, initials });
+    document.getElementById('adminAvatar').textContent       = initials;
+    document.getElementById('adminNameDisplay').textContent  = newName;
+    document.getElementById('adminEmailDisplay').textContent = document.getElementById('adminEmail').value;
+  }
+  showToast('Settings saved! ✅');
+}
+
+async function changePassword() {
+  const cur  = document.getElementById('curPwd').value;
+  const nwd  = document.getElementById('newPwd').value;
+  const cwd  = document.getElementById('confirmPwd').value;
+  if (!cur || !nwd || !cwd) { showToast('Please fill all password fields.', 'error'); return; }
+  if (nwd !== cwd) { showToast('New passwords do not match.', 'error'); return; }
+  if (nwd.length < 6) { showToast('Password must be at least 6 characters.', 'error'); return; }
+
+  const session = getSession();
+  const users   = getUsers();
+  const curHash = await hashPassword(cur);
+  const user    = users.find(u => u.id === session.id && u.password === curHash);
+  if (!user) { showToast('Current password is incorrect.', 'error'); return; }
+
+  user.password = await hashPassword(nwd);
+  saveUsers(users);
+  ['curPwd','newPwd','confirmPwd'].forEach(id => document.getElementById(id).value = '');
+  showToast('Password updated successfully! ✅');
+}
+
+function clearAllData() {
+  if (!confirm('This will delete ALL data (employees, leaves, attendance, announcements). Are you sure?')) return;
+  if (!confirm('Final confirmation — this cannot be undone!')) return;
+  ['od_employees','od_leaves','od_announcements','od_attendance','od_pending_users','od_departments','od_settings'].forEach(k => localStorage.removeItem(k));
+  showToast('All data cleared.', 'error');
+}
+
+function doLogout() { logout(); }
+
+loadSettings();
+</script>
+</body>
+</html>

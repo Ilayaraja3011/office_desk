@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Announcements – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<!-- mobile-header added by update -->
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div><div class="page-title">Announcements</div><div class="breadcrumb">Dashboard → Announcements</div></div>
+      </div>
+      <div class="header-right" id="adminBtn"></div>
+    </header>
+    <main class="page-body" role="main">
+      <div class="tabs" role="tablist" id="categoryTabs">
+        <div class="tab active" role="tab" data-cat="" onclick="filterCat(this,'')">All</div>
+        <div class="tab" role="tab" data-cat="Events" onclick="filterCat(this,'Events')">Events</div>
+        <div class="tab" role="tab" data-cat="HR" onclick="filterCat(this,'HR')">HR</div>
+        <div class="tab" role="tab" data-cat="Holiday" onclick="filterCat(this,'Holiday')">Holidays</div>
+        <div class="tab" role="tab" data-cat="General" onclick="filterCat(this,'General')">General</div>
+      </div>
+      <div id="annList">
+        <p style="text-align:center;padding:30px;color:var(--text-muted);">Loading...</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Post Modal (admin only) -->
+<div class="overlay" id="postModal" role="dialog" aria-modal="true" aria-labelledby="postTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="postTitle">Post Announcement</h2>
+      <button class="modal-close" onclick="closeModal('postModal')" aria-label="Close">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-control" id="annTitle" placeholder="Announcement title..."></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-control" id="annCat"><option>General</option><option>HR</option><option>Events</option><option>Holiday</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Pin to Top</label>
+        <select class="form-control" id="annPin"><option value="false">No</option><option value="true">Yes</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Content</label><textarea class="form-control" id="annContent" placeholder="Write your announcement..." style="min-height:110px;"></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('postModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAnnouncement()">📢 Post Now</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+const session = requireAuth('any');
+renderSidebar('announcements');
+
+const isAdmin = session.role === 'admin';
+if (isAdmin) {
+  document.getElementById('adminBtn').innerHTML = '<button class="btn btn-primary" onclick="openModal(\'postModal\')">📢 Post Announcement</button>';
+}
+
+let activeCat = '';
+function filterCat(el, cat) {
+  document.querySelectorAll('#categoryTabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  activeCat = cat;
+  renderAnnouncements();
+}
+
+const catColors = { Events:'rgba(0,200,255,0.3)', HR:'rgba(0,232,162,0.3)', Holiday:'rgba(255,179,64,0.3)', General:'rgba(107,130,168,0.3)' };
+
+function renderAnnouncements() {
+  let anns = getAnnouncements();
+  if (activeCat) anns = anns.filter(a => a.category === activeCat);
+  const container = document.getElementById('annList');
+
+  if (!anns.length) {
+    container.innerHTML = '<div class="card" style="text-align:center;padding:40px;"><p style="font-size:28px;margin-bottom:10px;">📭</p><p style="color:var(--text-muted);">No announcements yet.</p></div>';
+    return;
+  }
+
+  container.innerHTML = anns.map(a => {
+    const border = catColors[a.category] || 'var(--accent)';
+    const adminActions = isAdmin ? `
+      <div style="display:flex;gap:6px;align-self:flex-start;">
+        <button class="btn btn-sm btn-danger" onclick="removeAnn('${a.id}')">Delete</button>
+      </div>` : '';
+    return `
+      <article class="card" style="border-left:4px solid ${border};margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+              ${a.pinned ? '<span style="background:rgba(0,200,255,0.1);color:var(--accent);padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;">📌 Pinned</span>' : ''}
+              <span style="background:rgba(107,130,168,0.1);color:var(--text-muted);padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;">${a.category||'General'}</span>
+            </div>
+            <h2 style="font-size:17px;margin-bottom:8px;">${a.title}</h2>
+            <p style="color:var(--text-muted);font-size:13px;line-height:1.7;">${a.content}</p>
+          </div>
+          ${adminActions}
+        </div>
+        <div style="margin-top:13px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="avatar-sm">${a.author ? a.author.split(' ').map(w=>w[0]).join('').slice(0,2) : 'AD'}</div>
+            <span style="font-size:12px;color:var(--text-muted);">Posted by ${a.author || 'Admin'}</span>
+          </div>
+          <span style="font-size:12px;color:var(--text-muted);">📅 ${a.date}</span>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function removeAnn(id) {
+  if (!confirm('Delete this announcement?')) return;
+  deleteAnnouncement(id);
+  showToast('Announcement deleted', 'error');
+  renderAnnouncements();
+}
+
+function submitAnnouncement() {
+  const title   = document.getElementById('annTitle').value.trim();
+  const cat     = document.getElementById('annCat').value;
+  const pinned  = document.getElementById('annPin').value === 'true';
+  const content = document.getElementById('annContent').value.trim();
+  if (!title || !content) { showToast('Please fill all fields', 'error'); return; }
+  addAnnouncement({ title, category: cat, pinned, content, author: session.name });
+  showToast('Announcement posted!');
+  closeModal('postModal');
+  document.getElementById('annTitle').value = '';
+  document.getElementById('annContent').value = '';
+  renderAnnouncements();
+}
+
+renderAnnouncements();
+</script>
+</body>
+</html>

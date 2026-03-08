@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title">Notifications</div>
+          <div class="breadcrumb">Dashboard → Notifications</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-secondary btn-sm" onclick="clearAll()">Clear All</button>
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+      <div id="notifList"></div>
+    </main>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('any');
+renderSidebar('notifications');
+
+function renderNotifications() {
+  const session  = getSession();
+  const isAdmin  = session && session.role === 'admin';
+  const leaves   = getLeaves();
+  const anns     = getAnnouncements();
+  const container = document.getElementById('notifList');
+
+  let items = [];
+
+  // Leave notifications
+  if (isAdmin) {
+    const pending = leaves.filter(l => l.status === 'pending');
+    pending.forEach(l => {
+      items.push({
+        icon: '📅', color: 'rgba(245,166,35,0.15)',
+        text: `<strong>${l.empName}</strong> submitted a ${l.type} Leave request (${l.from} → ${l.to})`,
+        time: l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-IN') : 'Recently',
+        unread: true,
+        actions: `<button class="btn btn-sm btn-success" onclick="approveLeave('${l.id}')">✓ Approve</button>
+                  <button class="btn btn-sm btn-danger" onclick="rejectLeave('${l.id}')">✕ Reject</button>`
+      });
+    });
+  } else {
+    const myLeaves = leaves.filter(l => l.userId === session.id);
+    myLeaves.forEach(l => {
+      const statusIcon = l.status === 'approved' ? '✅' : l.status === 'rejected' ? '❌' : '🕐';
+      const statusColor = l.status === 'approved' ? 'rgba(46,204,113,0.15)' : l.status === 'rejected' ? 'rgba(233,69,96,0.15)' : 'rgba(245,166,35,0.15)';
+      items.push({
+        icon: statusIcon, color: statusColor,
+        text: `Your ${l.type} Leave (${l.from} → ${l.to}) is <strong>${l.status}</strong>`,
+        time: l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-IN') : 'Recently',
+        unread: l.status === 'pending'
+      });
+    });
+  }
+
+  // Announcement notifications
+  anns.slice(0, 3).forEach(a => {
+    items.push({
+      icon: '📢', color: 'rgba(79,126,248,0.15)',
+      text: `New announcement: <strong>${a.title}</strong>`,
+      time: a.date,
+      unread: false,
+      link: { href: 'announcements.html', label: 'View' }
+    });
+  });
+
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="card" style="text-align:center;padding:60px 20px;">
+        <div style="font-size:48px;margin-bottom:16px;">🔔</div>
+        <p style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;">No notifications yet</p>
+        <p style="color:var(--text-muted);font-size:14px;">Leave requests and announcements will appear here.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="card"><div style="display:flex;flex-direction:column;">` +
+    items.map(item => `
+      <div class="notif-item ${item.unread ? 'unread' : ''}">
+        <div class="notif-icon" style="background:${item.color};">${item.icon}</div>
+        <div class="notif-body">
+          <p>${item.text}</p>
+          <span>${item.time}</span>
+        </div>
+        ${item.actions ? `<div style="display:flex;gap:6px;align-self:flex-start;">${item.actions}</div>` : ''}
+        ${item.link ? `<a href="${item.link.href}" class="btn btn-sm btn-secondary" style="align-self:flex-start;">${item.link.label}</a>` : ''}
+      </div>`).join('') +
+    `</div></div>`;
+}
+
+function approveLeave(id) {
+  updateLeaveStatus(id, 'approved');
+  showToast('Leave approved!', 'success');
+  renderNotifications();
+}
+function rejectLeave(id) {
+  updateLeaveStatus(id, 'rejected');
+  showToast('Leave rejected.', 'error');
+  renderNotifications();
+}
+function clearAll() {
+  showToast('Notifications cleared.');
+}
+
+renderNotifications();
+</script>
+</body>
+</html>

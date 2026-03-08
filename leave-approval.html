@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave Approval – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<!-- mobile-header added by update -->
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div><div class="page-title">Leave Approval</div><div class="breadcrumb">Dashboard → Leave Approval</div></div>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-success" onclick="approveAll()">✓ Approve All</button>
+      </div>
+    </header>
+    <main class="page-body" role="main">
+      <div class="page-header">
+        <div><h1>Pending Approvals</h1><p id="pendingCount">Loading...</p></div>
+      </div>
+      <div id="approvalList">
+        <p style="text-align:center;padding:40px;color:var(--text-muted);">Loading...</p>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('admin');
+renderSidebar('approval');
+
+function renderApprovals() {
+  const pending = getLeaves().filter(l => l.status === 'pending');
+  document.getElementById('pendingCount').textContent = `${pending.length} request(s) awaiting your action`;
+  const container = document.getElementById('approvalList');
+
+  if (!pending.length) {
+    container.innerHTML = `
+      <div class="card" style="text-align:center;padding:52px;border-style:dashed;">
+        <p style="font-size:40px;margin-bottom:14px;">🎉</p>
+        <h3>All caught up!</h3>
+        <p style="color:var(--text-muted);margin-top:6px;">No pending leave requests right now.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = pending.map(l => {
+    const initials = (l.empName||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `
+      <article class="card" style="border-left:4px solid var(--warning);margin-bottom:14px;" id="card-${l.id}">
+        <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;">
+          <div class="avatar">${initials}</div>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <div>
+                <h3 style="font-size:15px;">${l.empName || 'Unknown'} <span class="dept-tag" style="margin-left:6px;">Employee</span></h3>
+                <p style="color:var(--text-muted);font-size:12px;margin-top:3px;">Applied: ${l.from} · ${l.type}</p>
+              </div>
+              <span class="status status-pending">Pending</span>
+            </div>
+            <div style="margin:12px 0;background:var(--bg);padding:12px;border-radius:10px;">
+              <div style="display:flex;gap:24px;flex-wrap:wrap;">
+                <div><p style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">From</p><p style="font-weight:700;font-size:14px;">${l.from}</p></div>
+                <div><p style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">To</p><p style="font-weight:700;font-size:14px;">${l.to}</p></div>
+                <div><p style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Days</p><p style="font-weight:700;font-size:14px;">${l.days||1}</p></div>
+              </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);">📝 ${l.reason}</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end;">
+          <button class="btn btn-danger" onclick="decide('${l.id}','rejected')">✕ Reject</button>
+          <button class="btn btn-success" onclick="decide('${l.id}','approved')">✓ Approve</button>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function decide(id, status) {
+  updateLeaveStatus(id, status);
+  showToast(status === 'approved' ? 'Leave approved!' : 'Leave rejected', status === 'approved' ? 'success' : 'error');
+  renderApprovals();
+}
+
+function approveAll() {
+  const pending = getLeaves().filter(l => l.status === 'pending');
+  if (!pending.length) { showToast('No pending leaves', 'info'); return; }
+  pending.forEach(l => updateLeaveStatus(l.id, 'approved'));
+  showToast(`${pending.length} leave(s) approved!`);
+  renderApprovals();
+}
+
+renderApprovals();
+</script>
+</body>
+</html>

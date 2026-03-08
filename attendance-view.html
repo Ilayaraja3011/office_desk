@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title">Attendance</div>
+          <div class="breadcrumb">Dashboard → Attendance</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <input type="date" id="dateFilter" class="form-control" style="width:160px;" onchange="renderAttendance()">
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+      <!-- Stats -->
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+        <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-value" id="presentCount">0</div><div class="stat-label">Present Today</div></div>
+        <div class="stat-card"><div class="stat-icon red">❌</div><div class="stat-value" id="absentCount">0</div><div class="stat-label">Absent</div></div>
+        <div class="stat-card"><div class="stat-icon yellow">📅</div><div class="stat-value" id="leaveCount">0</div><div class="stat-label">On Leave</div></div>
+        <div class="stat-card"><div class="stat-icon blue">📊</div><div class="stat-value" id="rateVal">–</div><div class="stat-label">Rate</div></div>
+      </div>
+
+      <!-- Attendance Table -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="tableTitle">Today's Attendance</span>
+        </div>
+        <div id="attendanceBody"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('admin');
+renderSidebar('attendance');
+
+// Set date picker to today
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('dateFilter').value = today;
+
+function renderAttendance() {
+  const date      = document.getElementById('dateFilter').value || today;
+  const records   = getAttendanceByDate(date);
+  const employees = getEmployees();
+  const leaves    = getLeaves();
+  const container = document.getElementById('attendanceBody');
+
+  // On-leave employees for that date
+  const onLeave = leaves.filter(l =>
+    l.status === 'approved' && l.from <= date && l.to >= date
+  ).map(l => l.userId);
+
+  const presentIds = records.map(r => r.userId);
+  const totalEmp   = employees.length;
+  const presentNum = records.length;
+  const leaveNum   = onLeave.length;
+  const absentNum  = Math.max(0, totalEmp - presentNum - leaveNum);
+  const rate       = totalEmp > 0 ? Math.round((presentNum / totalEmp) * 100) + '%' : '–';
+
+  document.getElementById('presentCount').textContent = presentNum;
+  document.getElementById('absentCount').textContent  = absentNum;
+  document.getElementById('leaveCount').textContent   = leaveNum;
+  document.getElementById('rateVal').textContent      = rate;
+  document.getElementById('tableTitle').textContent   = 'Attendance – ' + date;
+
+  if (employees.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:50px 20px;">
+      <div style="font-size:40px;margin-bottom:12px;">👥</div>
+      <p style="font-weight:700;color:var(--text);margin-bottom:6px;">No employees added yet</p>
+      <p style="color:var(--text-muted);font-size:13px;">Add employees first to track attendance.</p>
+    </div>`;
+    return;
+  }
+
+  if (records.length === 0 && employees.length > 0) {
+    container.innerHTML = `<div style="text-align:center;padding:50px 20px;">
+      <div style="font-size:40px;margin-bottom:12px;">⏰</div>
+      <p style="font-weight:700;color:var(--text);margin-bottom:6px;">No check-ins recorded for this date</p>
+      <p style="color:var(--text-muted);font-size:13px;">Attendance will appear here when employees check in.</p>
+    </div>`;
+    return;
+  }
+
+  // Build rows from all employees
+  const rows = employees.map(emp => {
+    const rec    = records.find(r => r.userId === emp.id);
+    const isLeave = onLeave.includes(emp.id);
+    const initials = emp.initials || emp.name.slice(0,2).toUpperCase();
+    if (rec) {
+      return `<tr>
+        <td data-label="Employee"><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="width:32px;height:32px;font-size:11px;">${initials}</div>${emp.name}</div></td>
+        <td data-label="Department"><span class="dept-tag">${emp.department || '–'}</span></td>
+        <td data-label="Check In">${rec.checkIn || '–'}</td>
+        <td data-label="Check Out">${rec.checkOut || '–'}</td>
+        <td data-label="Status"><span class="status status-active">Present</span></td>
+      </tr>`;
+    } else if (isLeave) {
+      return `<tr>
+        <td data-label="Employee"><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="width:32px;height:32px;font-size:11px;">${initials}</div>${emp.name}</div></td>
+        <td data-label="Department"><span class="dept-tag">${emp.department || '–'}</span></td>
+        <td data-label="Check In">–</td><td data-label="Check Out">–</td>
+        <td data-label="Status"><span class="status status-inactive">On Leave</span></td>
+      </tr>`;
+    } else {
+      return `<tr>
+        <td data-label="Employee"><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="width:32px;height:32px;font-size:11px;">${initials}</div>${emp.name}</div></td>
+        <td data-label="Department"><span class="dept-tag">${emp.department || '–'}</span></td>
+        <td data-label="Check In">–</td><td data-label="Check Out">–</td>
+        <td data-label="Status"><span class="status status-rejected">Absent</span></td>
+      </tr>`;
+    }
+  }).join('');
+
+  container.innerHTML = `<div class="table-wrapper"><table>
+    <thead><tr>
+      <th>Employee</th><th>Department</th><th>Check In</th><th>Check Out</th><th>Status</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+renderAttendance();
+</script>
+</body>
+</html>

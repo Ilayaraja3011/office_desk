@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – OfficeDesk</title>
+  <meta name="description" content="Sign in to your OfficeDesk account.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-bg-grid"></div>
+  <main class="auth-card" role="main">
+    <div class="auth-logo">
+      <img src="img/logo.jpeg" alt="OfficeDesk Logo" style="width:56px;height:56px;border-radius:16px;object-fit:cover;margin:0 auto 10px;display:block;box-shadow:0 8px 24px rgba(79,126,248,0.35);">
+      <h1>Welcome Back</h1>
+      <p>Sign in to your OfficeDesk account</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input type="email" id="email" class="form-control" placeholder="you@company.com" autocomplete="email" required>
+      <div class="form-error" id="emailErr"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <div style="position:relative;">
+        <input type="password" id="password" class="form-control" placeholder="Enter your password" autocomplete="current-password" required style="padding-right:44px;">
+        <button type="button" onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:15px;" aria-label="Show/hide password">👁</button>
+      </div>
+      <div class="form-error" id="passErr"></div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-muted);cursor:pointer;">
+        <input type="checkbox" id="remember" style="accent-color:var(--accent);"> Remember me
+      </label>
+      <a href="#" style="font-size:13px;color:var(--accent);">Forgot password?</a>
+    </div>
+
+    <div id="loginError" style="display:none;background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:10px;padding:12px;font-size:13px;color:var(--danger);margin-bottom:16px;text-align:center;"></div>
+
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:15px;" onclick="handleLogin()" id="loginBtn">
+      Sign In →
+    </button>
+
+    <div class="divider">New here?</div>
+    <a href="signup.html" class="btn btn-secondary" style="width:100%;justify-content:center;padding:12px;">Create an Account</a>
+    <p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:20px;">
+      <a href="index.html" style="color:var(--text-muted);">← Back to Home</a>
+    </p>
+  </main>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/main.js"></script>
+<script>
+const s = getSession();
+if (s) window.location.href = s.role === 'admin' ? 'dashboard.html' : 'user-dashboard.html';
+
+function togglePwd() {
+  const inp = document.getElementById('password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+async function handleLogin() {
+  const email  = document.getElementById('email').value.trim();
+  const pass   = document.getElementById('password').value;
+  const errBox = document.getElementById('loginError');
+  const btn    = document.getElementById('loginBtn');
+  errBox.style.display = 'none';
+  if (!email) { document.getElementById('emailErr').textContent = 'Email required'; document.getElementById('emailErr').classList.add('show'); return; }
+  if (!pass)  { document.getElementById('passErr').textContent  = 'Password required'; document.getElementById('passErr').classList.add('show'); return; }
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  const result = await login(email, pass);
+  if (!result.ok) { errBox.textContent = result.msg; errBox.style.display = 'block'; btn.textContent = 'Sign In →'; btn.disabled = false; return; }
+  setTimeout(() => { window.location.href = result.user.role === 'admin' ? 'dashboard.html' : 'user-dashboard.html'; }, 700);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+</script>
+</body>
+</html>

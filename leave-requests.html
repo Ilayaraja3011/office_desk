@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave Requests – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<!-- mobile-header added by update -->
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div><div class="page-title">Leave Requests</div><div class="breadcrumb">Dashboard → Leave Requests</div></div>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-primary" onclick="openModal('applyModal')">+ Apply Leave</button>
+      </div>
+    </header>
+    <main class="page-body" role="main">
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:22px;" id="leaveStats"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">All Leave Requests</span>
+          <select class="form-control" style="width:auto;font-size:12px;padding:5px 10px;" id="statusFilter" onchange="renderLeaves()" aria-label="Filter">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table aria-label="Leave requests">
+            <thead>
+              <tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="leaveTbody">
+              <tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-muted);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Apply Leave Modal -->
+<div class="overlay" id="applyModal" role="dialog" aria-modal="true" aria-labelledby="applyTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="applyTitle">Apply for Leave</h2>
+      <button class="modal-close" onclick="closeModal('applyModal')" aria-label="Close">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Employee Name</label><input type="text" id="empNameInput" class="form-control" placeholder="Enter employee name"></div>
+    <div class="form-group"><label class="form-label">Leave Type</label>
+      <select class="form-control" id="leaveType">
+        <option>Casual Leave</option><option>Medical Leave</option><option>Annual Leave</option><option>Sick Leave</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">From Date</label><input type="date" class="form-control" id="leaveFrom"></div>
+      <div class="form-group"><label class="form-label">To Date</label><input type="date" class="form-control" id="leaveTo"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Reason</label><textarea class="form-control" id="leaveReason" placeholder="Briefly describe..."></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('applyModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitLeave()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+const session = requireAuth('any');
+renderSidebar('leaves');
+
+function renderLeaves() {
+  const filter = document.getElementById('statusFilter').value;
+  let leaves = getLeaves();
+  if (session.role !== 'admin') leaves = leaves.filter(l => l.userId === session.id);
+  if (filter) leaves = leaves.filter(l => l.status === filter);
+
+  const allLeaves = getLeaves();
+  const pending  = allLeaves.filter(l=>l.status==='pending').length;
+  const approved = allLeaves.filter(l=>l.status==='approved').length;
+  const rejected = allLeaves.filter(l=>l.status==='rejected').length;
+
+  document.getElementById('leaveStats').innerHTML = `
+    <div class="stat-card"><div class="stat-icon amber">🕐</div><div class="stat-value">${pending}</div><div class="stat-label">Pending</div></div>
+    <div class="stat-card"><div class="stat-icon green">✅</div><div class="stat-value">${approved}</div><div class="stat-label">Approved</div></div>
+    <div class="stat-card"><div class="stat-icon red">❌</div><div class="stat-value">${rejected}</div><div class="stat-label">Rejected</div></div>
+    <div class="stat-card"><div class="stat-icon blue">📋</div><div class="stat-value">${allLeaves.length}</div><div class="stat-label">Total</div></div>
+  `;
+
+  const tbody = document.getElementById('leaveTbody');
+  if (!leaves.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-muted);">No leave requests found.</td></tr>';
+    return;
+  }
+
+  const isAdmin = session.role === 'admin';
+  tbody.innerHTML = leaves.map(l => {
+    const initials = (l.empName||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const actions = isAdmin && l.status === 'pending'
+      ? `<div style="display:flex;gap:5px;"><button class="btn btn-sm btn-success" onclick="changeStatus('${l.id}','approved')">✓</button><button class="btn btn-sm btn-danger" onclick="changeStatus('${l.id}','rejected')">✕</button></div>`
+      : l.status === 'pending' ? '<span style="font-size:12px;color:var(--text-muted);">Awaiting</span>'
+      : `<span style="font-size:12px;color:var(--text-muted);">${l.status}</span>`;
+    return `
+      <tr>
+        <td data-label="Employee"><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="width:28px;height:28px;font-size:10px;">${initials}</div>${l.empName||session.name}</div></td>
+        <td data-label="Type">${l.type}</td>
+        <td data-label="From">${l.from}</td>
+        <td data-label="To">${l.to}</td>
+        <td data-label="Days">${l.days||1}</td>
+        <td data-label="Reason" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.reason}</td>
+        <td data-label="Status"><span class="status status-${l.status}">${l.status}</span></td>
+        <td data-label="Actions">${actions}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function changeStatus(id, status) {
+  updateLeaveStatus(id, status);
+  showToast(status === 'approved' ? 'Leave approved!' : 'Leave rejected', status === 'approved' ? 'success' : 'error');
+  renderLeaves();
+}
+
+function submitLeave() {
+  const empName = session.role === 'admin' ? document.getElementById('empNameInput').value.trim() : session.name;
+  const type    = document.getElementById('leaveType').value;
+  const from    = document.getElementById('leaveFrom').value;
+  const to      = document.getElementById('leaveTo').value;
+  const reason  = document.getElementById('leaveReason').value.trim();
+  if (!from || !to || !reason) { showToast('Please fill all required fields', 'error'); return; }
+  if (new Date(to) < new Date(from)) { showToast('End date cannot be before start date', 'error'); return; }
+  const days = Math.ceil((new Date(to) - new Date(from)) / (1000*60*60*24)) + 1;
+  addLeave({ userId: session.id, empName: empName || session.name, type, from, to, days, reason });
+  showToast('Leave request submitted!');
+  closeModal('applyModal');
+  ['leaveFrom','leaveTo','leaveReason'].forEach(id => document.getElementById(id).value='');
+  if (document.getElementById('empNameInput')) document.getElementById('empNameInput').value='';
+  renderLeaves();
+}
+
+// Show/hide emp name field for admin
+if (session.role !== 'admin') {
+  document.getElementById('empNameInput') && (document.getElementById('empNameInput').parentElement.style.display = 'none');
+}
+
+renderLeaves();
+</script>
+</body>
+</html>

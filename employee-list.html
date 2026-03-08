@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employees – OfficeDesk</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<!-- mobile-header added by update -->
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div><div class="page-title">Employees</div><div class="breadcrumb">Dashboard → Employees</div></div>
+      </div>
+      <div class="header-right">
+        <div class="header-btn" onclick="window.location.href='notifications.html'">🔔</div>
+      </div>
+    </header>
+    <main class="page-body" role="main">
+      <div class="page-header">
+        <div><h1>All Employees</h1><p id="empSubtitle">Loading...</p></div>
+        <button class="btn btn-primary" onclick="openModal('addModal')">+ Add Employee</button>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;padding:14px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div class="search-bar" style="flex:1;min-width:180px;">
+            <span>🔍</span>
+            <input type="search" placeholder="Search employees..." id="searchInput" oninput="renderTable()" aria-label="Search">
+          </div>
+          <select class="form-control" style="width:auto;" id="deptFilter" onchange="renderTable()" aria-label="Filter by dept">
+            <option value="">All Departments</option>
+            <option>Engineering</option><option>HR</option><option>Finance</option>
+            <option>Marketing</option><option>Operations</option><option>Sales</option>
+          </select>
+          <select class="form-control" style="width:auto;" id="statusFilter" onchange="renderTable()" aria-label="Filter by status">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="leave">On Leave</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table id="empTable" aria-label="Employee list">
+            <thead>
+              <tr>
+                <th>Employee</th><th>ID</th><th>Department</th><th>Role</th>
+                <th>Join Date</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="empTbody">
+              <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+          <p style="font-size:12px;color:var(--text-muted);" id="paginationInfo">–</p>
+          <div style="display:flex;gap:6px;" id="paginationBtns"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div class="overlay" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="addTitle">Add New Employee</h2>
+      <button class="modal-close" onclick="closeModal('addModal')" aria-label="Close">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">First Name</label><input type="text" id="nFname" class="form-control" placeholder="First name" required></div>
+      <div class="form-group"><label class="form-label">Last Name</label><input type="text" id="nLname" class="form-control" placeholder="Last name" required></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input type="email" id="nEmail" class="form-control" placeholder="email@company.com" required></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Department</label>
+        <select id="nDept" class="form-control">
+          <option>Engineering</option><option>HR</option><option>Finance</option>
+          <option>Marketing</option><option>Operations</option><option>Sales</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Role / Title</label><input type="text" id="nRole" class="form-control" placeholder="e.g. Developer" required></div>
+    </div>
+    <div class="form-group"><label class="form-label">Join Date</label><input type="date" id="nJoin" class="form-control" required></div>
+    <div id="addError" style="display:none;background:rgba(255,68,102,0.1);border:1px solid rgba(255,68,102,0.3);border-radius:8px;padding:10px;font-size:13px;color:var(--danger);margin-bottom:12px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="handleAddEmployee()">Add Employee</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('admin');
+renderSidebar('employees');
+
+const PAGE_SIZE = 8;
+let currentPage = 1;
+let filtered = [];
+
+function renderTable() {
+  const q     = document.getElementById('searchInput').value.toLowerCase();
+  const dept  = document.getElementById('deptFilter').value;
+  const stat  = document.getElementById('statusFilter').value;
+  const emps  = getEmployees();
+
+  filtered = emps.filter(e => {
+    const matchQ = !q || e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q) || e.id.toLowerCase().includes(q);
+    const matchD = !dept || e.dept === dept;
+    const matchS = !stat || e.status === stat;
+    return matchQ && matchD && matchS;
+  });
+
+  document.getElementById('empSubtitle').textContent = `${emps.length} employees across 6 departments`;
+  currentPage = 1;
+  renderPage();
+}
+
+function renderPage() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filtered.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('empTbody');
+
+  if (!page.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">No employees found.</td></tr>';
+  } else {
+    tbody.innerHTML = page.map(e => `
+      <tr>
+        <td data-label="Employee">
+          <div style="display:flex;align-items:center;gap:9px;">
+            <div class="avatar" style="width:32px;height:32px;font-size:11px;">${e.initials}</div>
+            <div><strong style="font-size:13px;">${e.name}</strong><br><small style="color:var(--text-muted);font-size:11px;">${e.email}</small></div>
+          </div>
+        </td>
+        <td data-label="ID" style="font-size:12px;color:var(--text-muted);">${e.id}</td>
+        <td data-label="Department"><span class="dept-tag">${e.dept}</span></td>
+        <td data-label="Role" style="font-size:13px;">${e.role}</td>
+        <td data-label="Join Date" style="font-size:13px;color:var(--text-muted);">${e.joined}</td>
+        <td data-label="Status"><span class="status status-${e.status==='active'?'active':'inactive'}">${e.status}</span></td>
+        <td data-label="Actions">
+          <div style="display:flex;gap:5px;">
+            <a href="employee-profile.html?id=${emp.id}" class="btn btn-sm btn-secondary">View</a>
+            <button class="btn btn-sm btn-danger btn-icon" onclick="removeEmp('${e.id}')" aria-label="Delete">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Pagination
+  document.getElementById('paginationInfo').textContent = `Showing ${start+1}–${Math.min(start+PAGE_SIZE, filtered.length)} of ${filtered.length} employees`;
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const btns = document.getElementById('paginationBtns');
+  btns.innerHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.className = `btn btn-sm ${i===currentPage?'btn-primary':'btn-secondary'}`;
+    btn.textContent = i;
+    btn.onclick = () => { currentPage = i; renderPage(); };
+    btns.appendChild(btn);
+  }
+}
+
+function removeEmp(id) {
+  if (!confirm('Remove this employee?')) return;
+  deleteEmployee(id);
+  showToast('Employee removed', 'error');
+  renderTable();
+}
+
+function handleAddEmployee() {
+  const fname = document.getElementById('nFname').value.trim();
+  const lname = document.getElementById('nLname').value.trim();
+  const email = document.getElementById('nEmail').value.trim();
+  const dept  = document.getElementById('nDept').value;
+  const role  = document.getElementById('nRole').value.trim();
+  const join  = document.getElementById('nJoin').value;
+  const err   = document.getElementById('addError');
+  err.style.display = 'none';
+  if (!fname||!lname||!email||!role||!join) { err.textContent='Please fill all required fields.'; err.style.display='block'; return; }
+  addEmployee({ name:`${fname} ${lname}`, email, dept, role, joined:join, status:'active' });
+  showToast('Employee added!');
+  closeModal('addModal');
+  ['nFname','nLname','nEmail','nRole','nJoin'].forEach(id => document.getElementById(id).value='');
+  renderTable();
+}
+
+renderTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help & Support – OfficeDesk</title>
+  <meta name="description" content="Find answers to common questions and get support for OfficeDesk.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://officedesk.app/help.html">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-question { display:flex; justify-content:space-between; align-items:center; padding:16px 0; cursor:pointer; font-weight:600; font-size:15px; }
+    .faq-question .icon { transition: transform 0.3s; font-size:20px; }
+    .faq-answer { max-height:0; overflow:hidden; transition: max-height 0.3s ease, padding 0.3s; font-size:14px; color:var(--text-muted); line-height:1.7; }
+    .faq-item.open .faq-answer { max-height:200px; padding-bottom:16px; }
+    .faq-item.open .icon { transform: rotate(45deg); }
+  </style>
+</head>
+<body>
+<div id="sidebar-mount"></div>
+<!-- mobile-header added by update -->
+<div class="app-layout">
+  <div class="main-content">
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <div>
+          <div class="page-title">Help & Support</div>
+          <div class="breadcrumb">Dashboard → Help</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-body" role="main">
+      <!-- Search Help -->
+      <div class="card" style="text-align:center; padding:40px; margin-bottom:24px; background:linear-gradient(135deg, rgba(233,69,96,0.08), rgba(245,166,35,0.06));">
+        <h2 style="margin-bottom:8px;">How can we help you?</h2>
+        <p style="color:var(--text-muted); margin-bottom:24px;">Search our documentation or browse common questions below</p>
+        <div class="search-bar" style="max-width:480px; margin:0 auto; width:100%;">
+          <span>🔍</span>
+          <input type="search" placeholder="Search for help..." aria-label="Search help documentation">
+        </div>
+      </div>
+
+      <!-- Quick Help Cards -->
+      <div class="grid-3" style="margin-bottom:24px;">
+        <article class="card" style="text-align:center; cursor:pointer; padding:28px;" onclick="showToast('Opening guide...')">
+          <div style="font-size:40px; margin-bottom:12px;">📖</div>
+          <h3 style="font-size:16px; margin-bottom:6px;">User Guide</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Step-by-step documentation for all features</p>
+        </article>
+        <article class="card" style="text-align:center; cursor:pointer; padding:28px;" onclick="showToast('Opening video tutorials...')">
+          <div style="font-size:40px; margin-bottom:12px;">▶️</div>
+          <h3 style="font-size:16px; margin-bottom:6px;">Video Tutorials</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Watch guided walkthroughs of key features</p>
+        </article>
+        <article class="card" style="text-align:center; cursor:pointer; padding:28px;" onclick="openModal('contactModal')">
+          <div style="font-size:40px; margin-bottom:12px;">💬</div>
+          <h3 style="font-size:16px; margin-bottom:6px;">Contact Support</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Get in touch with our support team</p>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <!-- FAQ -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Frequently Asked Questions</span></div>
+          <div role="list">
+            <div class="faq-item" role="listitem">
+              <div class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                How do I add a new employee? <span class="icon">+</span>
+              </div>
+              <div class="faq-answer">Go to the Employees page and click the "Add Employee" button in the top right. Fill in the required fields like name, email, department, and role. The employee will be added to the system immediately.</div>
+            </div>
+            <div class="faq-item" role="listitem">
+              <div class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                How do I approve a leave request? <span class="icon">+</span>
+              </div>
+              <div class="faq-answer">Navigate to Leave Approval from the sidebar. You'll see all pending requests. Click the green ✓ Approve button or red ✕ Reject button next to each request. You can also approve multiple requests at once.</div>
+            </div>
+            <div class="faq-item" role="listitem">
+              <div class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                How do I generate and download reports? <span class="icon">+</span>
+              </div>
+              <div class="faq-answer">Go to Reports from the sidebar. Choose your report type (Attendance, Leave, or Employee), select the date range, and click Generate. You can download as PDF or Excel, or email it directly.</div>
+            </div>
+            <div class="faq-item" role="listitem">
+              <div class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                Can I edit employee information? <span class="icon">+</span>
+              </div>
+              <div class="faq-answer">Yes! Open the Employee Profile by clicking View on any employee in the list. Click the Edit button to enable editing mode, make changes, then click Save Changes in the header.</div>
+            </div>
+            <div class="faq-item" role="listitem">
+              <div class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                How are notifications sent? <span class="icon">+</span>
+              </div>
+              <div class="faq-answer">Notifications appear in the Notifications page and also as bell alerts in the header. You can configure email notifications and daily digests in Settings → Notification Preferences.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Getting Started -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="card">
+            <div class="card-header"><span class="card-title">🚀 Getting Started</span></div>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">Step 1</div>
+                <div class="timeline-content"><p style="font-weight:600; font-size:14px;">Set Up Company Info</p><p style="font-size:13px; color:var(--text-muted);">Add your company details in Settings</p></div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">Step 2</div>
+                <div class="timeline-content"><p style="font-weight:600; font-size:14px;">Create Departments</p><p style="font-size:13px; color:var(--text-muted);">Organize your workforce into departments</p></div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">Step 3</div>
+                <div class="timeline-content"><p style="font-weight:600; font-size:14px;">Add Employees</p><p style="font-size:13px; color:var(--text-muted);">Import or manually add employee records</p></div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">Step 4</div>
+                <div class="timeline-content"><p style="font-weight:600; font-size:14px;">Configure Leave Types</p><p style="font-size:13px; color:var(--text-muted);">Set up casual, medical and annual leave quotas</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">📞 Contact</span></div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <p style="font-size:14px;">📧 support@officedesk.app</p>
+              <p style="font-size:14px;">📞 support@officedesk.app</p>
+              <p style="font-size:14px; color:var(--text-muted);">Mon–Fri, 9 AM – 6 PM IST</p>
+              <button class="btn btn-primary btn-sm" onclick="openModal('contactModal')">Send a Message</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="overlay" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="contactTitle">Contact Support</h2>
+      <button class="modal-close" onclick="closeModal('contactModal')" aria-label="Close">✕</button>
+    </div>
+    <div class="form-group"><label class="form-label">Subject</label><input type="text" class="form-control" placeholder="Brief summary of your issue"></div>
+    <div class="form-group"><label class="form-label">Category</label><select class="form-control"><option>Technical Issue</option><option>Feature Request</option><option>Billing</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">Message</label><textarea class="form-control" placeholder="Describe your issue in detail..." style="min-height:120px;"></textarea></div>
+    <div style="display:flex; gap:12px; justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('contactModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="showToast('Message sent! We will reply within 24 hours.'); closeModal('contactModal')">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/main.js"></script>
+<script>
+requireAuth('any');
+renderSidebar('help');
+</script>
+</body>
+</html>
